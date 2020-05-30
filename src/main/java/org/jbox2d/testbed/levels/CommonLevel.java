@@ -34,25 +34,23 @@ import java.util.List;
  */
 public abstract class CommonLevel extends PlayLevel {
     protected static final Logger log = LoggerFactory.getLogger(CommonLevel.class);
-    protected final static float maxSpeedX = 6f;
-    protected final static float minSpeedX = -6f;
-    protected final static float maxSpeedXAir = 3f;
-    protected final static float minSpeedXAir = -3f;
+
     protected List<Line> linesList = new ArrayList<>();
     private int maxLevelIndex = 6;
-    protected final static float maxSpeedY = 3f;
+
     protected static final float commonPersonEdge = 1f;
     long last_step = 0;
     private static float bulletDeathVelocity = 75;
     protected List<Fixture> objectForJump = new ArrayList<>();
-    protected List<Fixture> contactObjForJump = new ArrayList<>();
+
     protected List<Body> bulletList = new ArrayList<>();
     protected Body exit;
     protected Hero hero;
-    protected Body objectToPush;
+
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
-    protected boolean canPush = false;
+
+
     protected List<Gun> gunList = new ArrayList<>();
     protected List<Body> destroyableList = Collections.synchronizedList(new ArrayList<>());
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
@@ -63,9 +61,6 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Enemy> enemyList;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
-
-    protected boolean blockedFromLeft;
-    protected boolean blockedFromRight;
 
 
     @Override
@@ -81,14 +76,9 @@ public abstract class CommonLevel extends PlayLevel {
     @Override
     public void initTest(boolean deserialized) {
         ccallback = new RayCastClosestCallback();
-        contactObjForJump.clear();
         garbageObjectCollector = new GarbageObjectCollector();
         last_step = 0;
         enemyList = new ArrayList<>();
-        objectToPush = null;
-        blockedFromRight = false;
-        blockedFromLeft = false;
-        canPush = false;
         createGameBox();
         createPlatforms();
     }
@@ -122,48 +112,14 @@ public abstract class CommonLevel extends PlayLevel {
         if (hero == null) {
             return;
         }
-        boolean hasContact = hero.getBody().m_contactList != null;
-        if (hasContact) {
-            hero.stepInAir = 0;
-        } else {
-            hero.stepInAir++;
-        }
         if (getModel().getKeys()['a'] || getModel().getKeys()[1092]) {
-            if (hero.getBody().getLinearVelocity().x > minSpeedX && !blockedFromLeft) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x - 1, hero.getBody().getLinearVelocity().y);
-                hero.getBody().setLinearVelocity(newVel);
-            }
-            if (hero.getBody().getLinearVelocity().x > minSpeedXAir && !hasContact) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x - 1, hero.getBody().getLinearVelocity().y);
-                hero.getBody().setLinearVelocity(newVel);
-            }
-            if (objectToPush != null && canPush) {
-                Vec2 newVel = new Vec2(objectToPush.m_linearVelocity.x + 0.5f, 0);
-                objectToPush.setLinearVelocity(newVel);
-            }
+            hero.left();
         }
         if (getModel().getKeys()['d'] || getModel().getKeys()[1074]) {
-            if (hero.getBody().getLinearVelocity().x < maxSpeedX && !blockedFromRight) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x + 1, hero.getBody().getLinearVelocity().y);
-                hero.getBody().setLinearVelocity(newVel);
-            }
-            if (hero.getBody().getLinearVelocity().x < maxSpeedXAir && !hasContact) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x + 1, hero.getBody().getLinearVelocity().y);
-                hero.getBody().setLinearVelocity(newVel);
-            }
-            if (objectToPush != null && canPush) {
-                Vec2 newVel = new Vec2(objectToPush.m_linearVelocity.x - 0.5f, 0);
-                objectToPush.setLinearVelocity(newVel);
-            }
+            hero.right();
         }
         if (getModel().getKeys()[' ']) {
-            if (hero.getBody().getLinearVelocity().y < maxSpeedY && contactObjForJump.size() > 0) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x, hero.getBody().getLinearVelocity().y + 7);
-                hero.getBody().setLinearVelocity(newVel);
-            } else if (!hasContact && hero.stepInAir < 8 && hero.stepInAir > 3) {
-                Vec2 newVel = new Vec2(hero.getBody().getLinearVelocity().x, hero.getBody().getLinearVelocity().y + 1.2f);
-                hero.getBody().setLinearVelocity(newVel);
-            }
+            hero.jump();
         }
     }
 
@@ -253,34 +209,34 @@ public abstract class CommonLevel extends PlayLevel {
 
         if (isHero(fixtureA.getBody())) {
             if (objectForJump.contains(fixtureB)) {
-                contactObjForJump.add(fixtureB);
+                hero.contactObjForJump.add(fixtureB);
             }
         }
         if (isHero(fixtureB.getBody())) {
             if (objectForJump.contains(fixtureA)) {
-                contactObjForJump.add(fixtureA);
+                hero.contactObjForJump.add(fixtureA);
             }
         }
 
         if (isHero(fixtureA.getBody())) {
             if (movingObject.contains(fixtureB.getBody())) {
-                objectToPush = fixtureB.getBody();
+                hero.objectToPush = fixtureB.getBody();
             }
         }
         if (isHero(fixtureB.getBody())) {
             if (movingObject.contains(fixtureA.getBody())) {
-                objectToPush = fixtureA.getBody();
+                hero.objectToPush = fixtureA.getBody();
             }
         }
 
         if (isHero(fixtureA.getBody())) {
             if (leftBlockedFixtures.contains(fixtureB)) {
-                blockedFromLeft = true;
+                hero.blockedFromLeft = true;
             }
         }
         if (isHero(fixtureB.getBody())) {
             if (leftBlockedFixtures.contains(fixtureA)) {
-                blockedFromLeft = true;
+                hero.blockedFromLeft = true;
             }
         }
         List<Fixture> enemyFixList = new ArrayList<>();
@@ -304,11 +260,11 @@ public abstract class CommonLevel extends PlayLevel {
         }
 
         if (isHero(fixtureA.getBody()) && (leftBlockedFixtures.contains(fixtureB) || rightBlockedFixtures.contains(fixtureB))) {
-            canPush = true;
+            hero.canPush = true;
         }
 
         if (isHero(fixtureB.getBody()) && (leftBlockedFixtures.contains(fixtureA) || rightBlockedFixtures.contains(fixtureA))) {
-            canPush = true;
+            hero.canPush = true;
         }
 
         for (Gun gun : gunList) {
@@ -378,40 +334,40 @@ public abstract class CommonLevel extends PlayLevel {
         Fixture fixtureB = contact.getFixtureB();
         if (isHero(fixtureA.getBody())) {
             if (objectForJump.contains(fixtureB)) {
-                contactObjForJump.remove(fixtureB);
+                hero.contactObjForJump.remove(fixtureB);
             }
         }
         if (isHero(fixtureB.getBody())) {
             if (objectForJump.contains(fixtureA)) {
-                contactObjForJump.remove(fixtureA);
+                hero.contactObjForJump.remove(fixtureA);
             }
         }
 
         if (isHero(fixtureA.getBody())) {
             if (leftBlockedFixtures.contains(fixtureB)) {
-                blockedFromLeft = false;
+                hero.blockedFromLeft = false;
             }
         }
         if (isHero(fixtureB.getBody())) {
             if (leftBlockedFixtures.contains(fixtureA)) {
-                blockedFromLeft = false;
+                hero.blockedFromLeft = false;
             }
         }
 
-        if (isHero(fixtureA.getBody()) && objectToPush == fixtureB.getBody()) {
-            objectToPush = null;
+        if (isHero(fixtureA.getBody()) && hero.objectToPush == fixtureB.getBody()) {
+            hero.objectToPush = null;
         }
 
-        if (isHero(fixtureB.getBody()) && objectToPush == fixtureA.getBody()) {
-            objectToPush = null;
+        if (isHero(fixtureB.getBody()) && hero.objectToPush == fixtureA.getBody()) {
+            hero.objectToPush = null;
         }
 
         if (isHero(fixtureA.getBody()) && (leftBlockedFixtures.contains(fixtureB) || rightBlockedFixtures.contains(fixtureB))) {
-            canPush = false;
+            hero.canPush = false;
         }
 
         if (isHero(fixtureB.getBody()) && (leftBlockedFixtures.contains(fixtureA) || rightBlockedFixtures.contains(fixtureA))) {
-            canPush = false;
+            hero.canPush = false;
         }
 
         for (MovingObject movingObject : movingObjectList) {
@@ -546,15 +502,13 @@ public abstract class CommonLevel extends PlayLevel {
                     return -1f;
                 }
             }
-
             m_hit = true;
             m_point = point;
             m_normal = normal;
             return fraction;
         }
 
-    };
-
+    }
 
     @Override
     public Long getTag(World world) {
@@ -583,22 +537,18 @@ public abstract class CommonLevel extends PlayLevel {
 
     @Override
     public void processWorld(World world, Long tag) {
-
     }
 
     @Override
     public void processBody(Body body, Long tag) {
-
     }
 
     @Override
     public void processFixture(Fixture fixture, Long tag) {
-
     }
 
     @Override
     public void processShape(Shape shape, Long tag) {
-
     }
 
     @Override

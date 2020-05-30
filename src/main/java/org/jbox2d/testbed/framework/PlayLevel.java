@@ -447,7 +447,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
             ++stepCount;
         }
 
-      //  debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),Color3f.WHITE);
+       debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),Color3f.WHITE);
        /* if (settings.getSetting(PlayedSettings.DrawStats).enabled) {
         debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),Color3f.WHITE);
             m_textLine += TEXT_LINE_SPACE;

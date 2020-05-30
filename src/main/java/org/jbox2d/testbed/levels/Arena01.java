@@ -114,6 +114,8 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -153,10 +155,6 @@ public class Arena01 extends CommonLevel {
     public void initTest(boolean deserialized) {
         super.initTest(false);
         createGameObjects();
-        exit = GeometryBodyFactory.createRectangle(getWidth() / 2 - 0.25f,
-                -getHeight() / 2 + 4 * commonPersonEdge, 0.25f, 4, BodyType.STATIC, getWorld(), Color3f.GREEN);
-        rightBlockedFixtures.add(exit.getFixtureList());
-
     }
 
     protected void createGameObjects() {
@@ -180,23 +178,20 @@ public class Arena01 extends CommonLevel {
                 linesList.addAll(lines);
                 b.getFixtureList().m_friction = 2;
                 objectForJump.add(b.getFixtureList());
-
-                if (j > 3) {
-                    Body enemyBody = GeometryBodyFactory.createRectangle(startPointX, startPointY + 1f, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-                    Integer direction =0;
-                    while (direction==0) {
-                        direction = rand.nextInt(3) - 1;
-                    }
-                    Enemy enemy = new Enemy(enemyBody, getWorld(),new Vec2(direction*6, 0));
-                    enemy.delayToFire=40;
-                    enemyList.add(enemy);
-                    destroyableList.add(enemyBody);
-                }
                 startPointX = startPointX + deltaX;
             }
             startPointY = startPointY + deltaY;
         }
 
+        Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
+        Integer direction = 0;
+        while (direction == 0) {
+            direction = rand.nextInt(3) - 1;
+            Enemy enemy = new Enemy(enemyBody, getWorld(), new Vec2(direction * 6, 0));
+            enemy.delayToFire = 40;
+            enemyList.add(enemy);
+            destroyableList.add(enemyBody);
+        }
         startPointY = -19;
         deltaX = 20;
         deltaY = 12;
@@ -209,36 +204,11 @@ public class Arena01 extends CommonLevel {
                 b.getFixtureList().m_friction = 2;
                 objectForJump.add(b.getFixtureList());
                 startPointX = startPointX + deltaX;
-                if (j > 2) {
-                    Body enemyBody = GeometryBodyFactory.createRectangle(startPointX, startPointY + 1f, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-                    Integer direction =0;
-                    while (direction==0) {
-                        direction = rand.nextInt(3) - 1;
-                    }
-                    Enemy enemy = new Enemy(enemyBody, getWorld(),new Vec2(direction*6, 0));
-                    enemy.delayToFire=40;
-                    enemyList.add(enemy);
-                    destroyableList.add(enemyBody);
-                }
-
             }
             startPointY = startPointY + deltaY;
         }
 
-        Body block = GeometryBodyFactory.createGameBrick(38.5f, -20, 1.2f, 0.1f, BodyType.STATIC, getWorld());
-        List<Line> lines = GeometryBodyFactory.splitRectangle(38.5f, -20, 1.2f, 0.1f);
-        linesList.addAll(lines);
-        block.getFixtureList().m_friction = 3;
-        objectForJump.add(block.getFixtureList());
 
-
-        Body platform2 = GeometryBodyFactory.createRectangle(37, -25, 0.2f, 5f, BodyType.KINEMATIC, getWorld());
-        platform2.getFixtureList().m_friction = 0;
-        rightBlockedFixtures.add(platform2.getFixtureList());
-        List<Vec2> coordinatesList = new ArrayList<>();
-        coordinatesList.add(new Vec2(37f, -10));
-        MovingObject mo1 = GameObjectFactory.createMovingObject(platform2, null, coordinatesList, false, new Vec2(0, 1));
-        movingObjectList.add(mo1);
     }
 
     @Override
