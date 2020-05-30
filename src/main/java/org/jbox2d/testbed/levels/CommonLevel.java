@@ -13,8 +13,7 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.jbox2d.dynamics.joints.Joint;
-import org.jbox2d.testbed.Enemy;
-import org.jbox2d.testbed.Hero;
+import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.*;
 import org.jbox2d.testbed.framework.game.objects.Gun;
 import org.jbox2d.testbed.framework.game.objects.MovingObject;
@@ -44,8 +43,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Fixture> objectForJump = new ArrayList<>();
 
     protected List<Body> bulletList = new ArrayList<>();
-    protected Body exit;
-    protected Hero hero;
+    protected Player hero;
 
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
@@ -58,7 +56,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Fixture> leftBlockedFixtures = new ArrayList<>();
     protected List<Fixture> rightBlockedFixtures = new ArrayList<>();
     protected List<MovingObject> movingObjectList = new ArrayList<>();
-    protected List<Enemy> enemyList;
+    protected List<Player> playersList;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
 
@@ -78,7 +76,7 @@ public abstract class CommonLevel extends PlayLevel {
         ccallback = new RayCastClosestCallback();
         garbageObjectCollector = new GarbageObjectCollector();
         last_step = 0;
-        enemyList = new ArrayList<>();
+        playersList = new ArrayList<>();
         createGameBox();
         createPlatforms();
     }
@@ -149,20 +147,20 @@ public abstract class CommonLevel extends PlayLevel {
         return log;
     }
 
-    protected void enemyAction() {
-        if (enemyList.size() > 0) {
-            for (Enemy enemy : enemyList) {
+    protected void playersActions() {
+        if (playersList.size() > 0) {
+            for (Player enemy : playersList) {
                 Vec2 currentVel = enemy.getBody().getLinearVelocity();
-                currentVel.x = enemy.constantVelocity.x;
+                currentVel.x = enemy.maxSpeedX;
                 enemy.getBody().setLinearVelocity(currentVel);
             }
         }
     }
 
     protected void enemyFireAction() {
-        if (enemyList.size() > 0 && hero != null) {
-            for (Enemy enemy : enemyList) {
-                if (!enemy.getBody().isDestroy() && !hero.getBody().isDestroy() && enemy.lastFireWeapon1 < last_step - enemy.weapon1CoolDown) {
+        if (playersList.size() > 0 && hero != null) {
+            for (Player enemy : playersList) {
+                if (!enemy.getBody().isDestroy() && !hero.getBody().isDestroy() && enemy.getWeapon1CD()==0) {
                     Line fireLine = new Line(hero.getBody().getPosition(), enemy.getBody().getPosition());
                     boolean isVisible = true;
                     for (Line line : linesList) {
@@ -177,10 +175,7 @@ public abstract class CommonLevel extends PlayLevel {
                         if (enemy_bullet != null) {
                             bulletList.add(enemy_bullet);
                             garbageObjectCollector.add(enemy_bullet, last_step + 400);
-                            enemy.lastFireWeapon1 = last_step;
                         }
-                    } else {
-                        enemy.stepToWait = 0;
                     }
                 }
             }
@@ -189,7 +184,7 @@ public abstract class CommonLevel extends PlayLevel {
 
 
     protected void leftMouseAction() {
-        if (hasGun() && cursorInFireArea() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
+        if (cursorInFireArea() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             Body heroBullet = hero.fireWeapon1(getWorldMouse());
             garbageObjectCollector.add(heroBullet, last_step + 400);
             bulletList.add(heroBullet);
@@ -202,10 +197,6 @@ public abstract class CommonLevel extends PlayLevel {
         Body bodyToDestroy = null;
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
-        if (isHero(fixtureA.getBody()) && fixtureB.getBody() == exit ||
-                isHero(fixtureB.getBody()) && fixtureA.getBody() == exit) {
-            endLevel();
-        }
 
         if (isHero(fixtureA.getBody())) {
             if (objectForJump.contains(fixtureB)) {
@@ -240,10 +231,10 @@ public abstract class CommonLevel extends PlayLevel {
             }
         }
         List<Fixture> enemyFixList = new ArrayList<>();
-        for (Enemy enemy : enemyList) {
+        for (Player enemy : playersList) {
             enemyFixList.add(enemy.getBody().getFixtureList());
         }
-        for (Enemy enemy : enemyList) {
+        for (Player enemy : playersList) {
             Fixture fixtureToContact = null;
             if (fixtureA.getBody() == enemy.getBody()) {
                 fixtureToContact = fixtureB;
@@ -255,7 +246,7 @@ public abstract class CommonLevel extends PlayLevel {
                     rightBlockedFixtures.contains(fixtureToContact) ||
                     enemyFixList.contains(fixtureToContact))
             ) {
-                enemy.constantVelocity.x = -enemy.constantVelocity.x;
+                enemy.getBody().getLinearVelocity().x = -enemy.maxSpeedX;
             }
         }
 
@@ -304,13 +295,13 @@ public abstract class CommonLevel extends PlayLevel {
         if (bodyToDestroy == hero.getBody() && bullet == hero.activeBullet) {
             return;
         }
-        for (Enemy enemy : enemyList) {
+        for (Player enemy : playersList) {
             if (bodyToDestroy == enemy.getBody() && bullet == enemy.activeBullet) {
                 return;
             }
         }
 
-        if (bullet != null && (bodyToDestroy == hero.getBody() || enemyList.contains(bodyToDestroy))) {
+        if (bullet != null && (bodyToDestroy == hero.getBody() || playersList.contains(bodyToDestroy))) {
             Vec2 bulletVel = bullet.getLinearVelocity();
             if (bulletVel.length() > bulletDeathVelocity) {
                 objectToExplode.add(bodyToDestroy);
@@ -381,17 +372,9 @@ public abstract class CommonLevel extends PlayLevel {
 
     }
 
-    protected abstract boolean hasGun();
-
     protected abstract void checkEnemyAction();
 
     protected boolean cursorInFireArea() {
-      /*  Line fireLine = new Line(hero.getBody().getPosition(), getWorldMouse());
-        for (Line line : linesList) {
-            if (LineIntersectChecker.doIntersect(fireLine, line)) {
-                return false;
-            }
-        }*/
         return getWorldMouse().x < getWidth() / 2
                 && getWorldMouse().x > -getWidth() / 2
                 && getWorldMouse().y > -getHeight() / 2
@@ -401,12 +384,13 @@ public abstract class CommonLevel extends PlayLevel {
     @Override
     public void step(SettingsIF settings) {
 
-        if (hasGun() && cursorInFireArea()) {
+        if ( cursorInFireArea()) {
             scene.setCursor(Cursor.CROSSHAIR);
         } else {
             scene.setCursor(Cursor.DEFAULT);
         }
-        if (hasGun() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
+
+        if ( !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             ccallback.init();
             Vec2 point1 = hero.getBody().getPosition();
             Vec2 point2 = getWorldMouse();
@@ -421,7 +405,7 @@ public abstract class CommonLevel extends PlayLevel {
         super.step(settings);
         keyPressed();
         explose();
-        enemyAction();
+        playersActions();
         enemyFireAction();
         for (Gun gun : gunList) {
             gun.checkFire(last_step);
@@ -432,13 +416,16 @@ public abstract class CommonLevel extends PlayLevel {
         if (last_step % 20 == 0) {
             garbageObjectCollector.clear(last_step, getWorld());
         }
+        for (Player player : playersList) {
+            player.decrWeapon1CD();
+        }
         hero.decrWeapon1CD();
         last_step++;
     }
 
     private void explose() {
         for (Body body : objectToExplode) {
-            for (Enemy enemy : enemyList) {
+            for (Player enemy : playersList) {
                 if (enemy.getBody() == body) {
                     int frags = hero.getEnemyKilled();
                     frags++;

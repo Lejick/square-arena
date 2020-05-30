@@ -8,19 +8,18 @@ import org.jbox2d.dynamics.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hero {
+public class Player {
 
-    protected final static float maxSpeedY = 3f;
-    protected final static float maxSpeedX = 6f;
-    protected final static float minSpeedX = -6f;
-    protected final static float maxSpeedXAir = 3f;
-    protected final static float minSpeedXAir = -3f;
+    public final static float maxSpeedY = 3f;
+    public final static float maxSpeedX = 6f;
+    public final static float minSpeedX = -6f;
+    public final static float maxSpeedXAir = 3f;
+    public final static float minSpeedXAir = -3f;
 
     public boolean canPush = false;
     public Body objectToPush;
     public boolean blockedFromLeft;
     public boolean blockedFromRight;
-
     protected Body heroBody;
     public Body activeBullet;
     protected World world;
@@ -28,7 +27,7 @@ public class Hero {
     private int enemyKilled = 0;
     public List<Fixture> contactObjForJump = new ArrayList<>();
 
-    public Hero(Body heroBody, World world) {
+    public Player(Body heroBody, World world) {
         this.heroBody = heroBody;
         this.world = world;
     }

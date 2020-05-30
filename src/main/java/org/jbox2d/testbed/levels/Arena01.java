@@ -116,6 +116,8 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -127,16 +129,12 @@ import org.jbox2d.common.Color3f;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.testbed.Enemy;
-import org.jbox2d.testbed.Hero;
+import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.SettingsIF;
-import org.jbox2d.testbed.framework.game.objects.GameObjectFactory;
 import org.jbox2d.testbed.framework.game.objects.GeometryBodyFactory;
-import org.jbox2d.testbed.framework.game.objects.MovingObject;
 import org.jbox2d.testbed.framework.utils.Line;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -161,11 +159,10 @@ public class Arena01 extends CommonLevel {
     protected void createGameObjects() {
         Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
         destroyableList.add(heroBody);
-        hero = new Hero(heroBody, getWorld());
-
+        hero = new Player(heroBody, getWorld());
     }
-    protected void createPlatforms() {
 
+    protected void createPlatforms() {
         float startPointY = -25;
         float deltaX = 20;
         float deltaY = 12;
@@ -203,32 +200,28 @@ public class Arena01 extends CommonLevel {
     @Override
     public void step(SettingsIF settings) {
         super.step(settings);
-        List<Enemy> alive = enemyList.stream().filter(enemy -> !enemy.isDestroyed()).collect(Collectors.toList());
+        List<Player> alive = playersList.stream().filter(enemy -> !enemy.getBody().isDestroy()).collect(Collectors.toList());
         if (alive.size() == 0) {
             resetEnemy();
         }
     }
 
-    private void resetEnemy(){
+    private void resetEnemy() {
         Random rand = new Random();
         Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
         Integer direction = 0;
         while (direction == 0) {
             direction = rand.nextInt(3) - 1;
-            Enemy enemy = new Enemy(enemyBody, getWorld(), new Vec2(direction * 6, 0));
-            enemy.delayToFire = 40;
-            enemyList.add(enemy);
+            Player enemy = new Player(enemyBody, getWorld());
+            enemy.getBody().setLinearVelocity(new Vec2(direction * 6, 0));
+            playersList.add(enemy);
             destroyableList.add(enemyBody);
         }
     }
+
     @Override
     protected int getLevelIndex() {
         return 6;
-    }
-
-    @Override
-    protected boolean hasGun() {
-        return true;
     }
 
     @Override
