@@ -32,12 +32,6 @@ import org.jbox2d.testbed.levels.*;
 public class LevelsList {
 
   public static void populateModel(PlayModel model, AbstractTestbedController controller, Scene scene) {
-    model.addTest(new Level1(controller,scene));
-    model.addTest(new Level2(controller,scene));
-    model.addTest(new Level3(controller,scene));
-    model.addTest(new Level4(controller,scene));
-    model.addTest(new Level5(controller,scene));
-    model.addTest(new Level6(controller,scene));
-    model.addTest(new Level7(controller,scene));
+    model.addTest(new Arena01(controller,scene));
   }
 }

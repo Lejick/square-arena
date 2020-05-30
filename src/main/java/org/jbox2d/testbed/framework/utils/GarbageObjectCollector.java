@@ -2,7 +2,6 @@ package org.jbox2d.testbed.framework.utils;
 
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
-import org.jbox2d.testbed.levels.Level1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +12,7 @@ import java.util.Map;
 
 public class GarbageObjectCollector {
     Map<Long, List<Body>> objectsMap = new HashMap<Long, List<Body>>();
-    protected static final Logger log = LoggerFactory.getLogger(Level1.class);
+    protected static final Logger log = LoggerFactory.getLogger(GarbageObjectCollector.class);
 
     public void add(Body body, long stepToLive) {
         List<Body> bodyList = objectsMap.getOrDefault(stepToLive, new ArrayList<>());

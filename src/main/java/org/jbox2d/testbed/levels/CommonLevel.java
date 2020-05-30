@@ -33,7 +33,7 @@ import java.util.List;
  * @author Daniel Murphy
  */
 public abstract class CommonLevel extends PlayLevel {
-    protected static final Logger log = LoggerFactory.getLogger(Level1.class);
+    protected static final Logger log = LoggerFactory.getLogger(CommonLevel.class);
     protected final static float maxSpeedX = 6f;
     protected final static float minSpeedX = -6f;
     protected final static float maxSpeedXAir = 3f;

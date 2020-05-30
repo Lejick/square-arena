@@ -139,13 +139,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author Daniel Murphy
+ * @author Oleg Trohov
  */
-public class Level7 extends CommonLevel {
+public class Arena01 extends CommonLevel {
     private static float width = 80;
     private static float height = 60;
 
-    public Level7(AbstractTestbedController controller, Scene scene) {
+    public Arena01(AbstractTestbedController controller, Scene scene) {
         super(controller, scene);
     }
 
@@ -269,12 +269,12 @@ public class Level7 extends CommonLevel {
 
     @Override
     public String getLevelName() {
-        return "Level 7";
+        return "Arena 01";
     }
 
     @Override
     public String getLevelDescription() {
-        return "Kill All Enemies\nYou have a gun";
+        return "Kill Enemy";
     }
 
     @Override
