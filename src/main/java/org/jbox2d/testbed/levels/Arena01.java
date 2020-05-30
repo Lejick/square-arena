@@ -139,6 +139,7 @@ import org.jbox2d.testbed.framework.utils.Line;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * @author Oleg Trohov
@@ -163,10 +164,8 @@ public class Arena01 extends CommonLevel {
         hero = new Hero(heroBody, getWorld());
 
     }
-
-
     protected void createPlatforms() {
-        Random rand = new Random();
+
         float startPointY = -25;
         float deltaX = 20;
         float deltaY = 12;
@@ -181,16 +180,6 @@ public class Arena01 extends CommonLevel {
                 startPointX = startPointX + deltaX;
             }
             startPointY = startPointY + deltaY;
-        }
-
-        Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-        Integer direction = 0;
-        while (direction == 0) {
-            direction = rand.nextInt(3) - 1;
-            Enemy enemy = new Enemy(enemyBody, getWorld(), new Vec2(direction * 6, 0));
-            enemy.delayToFire = 40;
-            enemyList.add(enemy);
-            destroyableList.add(enemyBody);
         }
         startPointY = -19;
         deltaX = 20;
@@ -214,15 +203,24 @@ public class Arena01 extends CommonLevel {
     @Override
     public void step(SettingsIF settings) {
         super.step(settings);
-        if (hero.getEnemyKilled() == 7) {
-            for (MovingObject movingObject : movingObjectList) {
-                if (!movingObject.isActive()) {
-                    movingObject.setActive(true);
-                }
-            }
+        List<Enemy> alive = enemyList.stream().filter(enemy -> !enemy.isDestroyed()).collect(Collectors.toList());
+        if (alive.size() == 0) {
+            resetEnemy();
         }
     }
 
+    private void resetEnemy(){
+        Random rand = new Random();
+        Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
+        Integer direction = 0;
+        while (direction == 0) {
+            direction = rand.nextInt(3) - 1;
+            Enemy enemy = new Enemy(enemyBody, getWorld(), new Vec2(direction * 6, 0));
+            enemy.delayToFire = 40;
+            enemyList.add(enemy);
+            destroyableList.add(enemyBody);
+        }
+    }
     @Override
     protected int getLevelIndex() {
         return 6;

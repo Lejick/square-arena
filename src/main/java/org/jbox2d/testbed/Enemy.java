@@ -20,6 +20,9 @@ public class Enemy {
         this.world = world;
     }
 
+    public boolean isDestroyed(){
+        return enemyBody.isDestroy();
+    }
     public Body getBody() {
         return enemyBody;
     }
