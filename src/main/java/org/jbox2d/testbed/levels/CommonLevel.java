@@ -35,19 +35,15 @@ public abstract class CommonLevel extends PlayLevel {
     protected static final Logger log = LoggerFactory.getLogger(CommonLevel.class);
 
     protected List<Line> linesList = new ArrayList<>();
-    private int maxLevelIndex = 6;
 
     protected static final float commonPersonEdge = 1f;
     long last_step = 0;
     private static float bulletDeathVelocity = 75;
     protected List<Fixture> objectForJump = new ArrayList<>();
-
     protected List<Body> bulletList = new ArrayList<>();
     protected Player hero;
-
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
-
 
     protected List<Gun> gunList = new ArrayList<>();
     protected List<Body> destroyableList = Collections.synchronizedList(new ArrayList<>());
@@ -59,7 +55,6 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Player> playersList;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
-
 
     @Override
     public boolean isSaveLoadEnabled() {
@@ -127,15 +122,11 @@ public abstract class CommonLevel extends PlayLevel {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(null);
         alert.setHeaderText(null);
-        alert.setContentText("Good game. You won! Click OK to exit.");
+        alert.setContentText("Good game. You won! Click OK to restart.");
         alert.setOnHidden(evt -> {
             Platform.runLater(() -> {
                 getModel().getSettings().setPause(false);
-                int nextLevelIndex = getLevelIndex() + 1;
-                if (getLevelIndex() == maxLevelIndex) {
-                    nextLevelIndex = 0;
-                }
-                controller.playTest(nextLevelIndex);
+                controller.playTest(getLevelIndex());
                 controller.reset();
             });
         });
@@ -147,7 +138,7 @@ public abstract class CommonLevel extends PlayLevel {
         return log;
     }
 
-    protected void playersActions() {
+    protected void checkMovement() {
         if (playersList.size() > 0) {
             for (Player enemy : playersList) {
                 Vec2 currentVel = enemy.getBody().getLinearVelocity();
@@ -157,10 +148,10 @@ public abstract class CommonLevel extends PlayLevel {
         }
     }
 
-    protected void enemyFireAction() {
+    protected void checkEnemyFireAction() {
         if (playersList.size() > 0 && hero != null) {
             for (Player enemy : playersList) {
-                if (!enemy.getBody().isDestroy() && !hero.getBody().isDestroy() && enemy.getWeapon1CD()==0) {
+                if (!enemy.getBody().isDestroy() && !hero.getBody().isDestroy() && enemy.getWeapon1CD() == 0) {
                     Line fireLine = new Line(hero.getBody().getPosition(), enemy.getBody().getPosition());
                     boolean isVisible = true;
                     for (Line line : linesList) {
@@ -180,6 +171,10 @@ public abstract class CommonLevel extends PlayLevel {
                 }
             }
         }
+        for (Player player : playersList) {
+            player.decrWeapon1CD();
+        }
+        hero.decrWeapon1CD();
     }
 
 
@@ -372,8 +367,6 @@ public abstract class CommonLevel extends PlayLevel {
 
     }
 
-    protected abstract void checkEnemyAction();
-
     protected boolean cursorInFireArea() {
         return getWorldMouse().x < getWidth() / 2
                 && getWorldMouse().x > -getWidth() / 2
@@ -381,52 +374,59 @@ public abstract class CommonLevel extends PlayLevel {
                 && getWorldMouse().y < getHeight() / 2;
     }
 
-    @Override
-    public void step(SettingsIF settings) {
-
-        if ( cursorInFireArea()) {
+    protected void drawTargetElements() {
+        if (cursorInFireArea()) {
             scene.setCursor(Cursor.CROSSHAIR);
         } else {
             scene.setCursor(Cursor.DEFAULT);
         }
 
-        if ( !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
+        if (!hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             ccallback.init();
             Vec2 point1 = hero.getBody().getPosition();
             Vec2 point2 = getWorldMouse();
             getWorld().raycast(ccallback, point1, point2);
             if (ccallback.m_hit) {
-                getDebugDraw().drawPoint(ccallback.m_point, 5.0f, new Color3f(0.4f, 0.9f, 0.4f));
+                getDebugDraw().drawPoint(ccallback.m_point, 3.0f, new Color3f(0, 0, 0));
                 getDebugDraw().drawSegment(point1, ccallback.m_point, new Color3f(1, 0f, 0));
             } else {
                 getDebugDraw().drawSegment(point1, point2, new Color3f(1, 0, 0));
             }
         }
-        super.step(settings);
-        keyPressed();
-        explose();
-        playersActions();
-        enemyFireAction();
+    }
+
+    protected void environmetsActions() {
         for (Gun gun : gunList) {
             gun.checkFire(last_step);
         }
         for (MovingObject movingObject : movingObjectList) {
             movingObject.calculateStep();
         }
+    }
+
+    protected void collectgarbage() {
         if (last_step % 20 == 0) {
             garbageObjectCollector.clear(last_step, getWorld());
         }
-        for (Player player : playersList) {
-            player.decrWeapon1CD();
-        }
-        hero.decrWeapon1CD();
+    }
+
+    @Override
+    public void step(SettingsIF settings) {
+        super.step(settings);
+        drawTargetElements();
+        explose();
+        keyPressed();
+        checkMovement();
+        checkEnemyFireAction();
+        environmetsActions();
+        collectgarbage();
         last_step++;
     }
 
     private void explose() {
         for (Body body : objectToExplode) {
-            for (Player enemy : playersList) {
-                if (enemy.getBody() == body) {
+            for (Player player : playersList) {
+                if (player.getBody() == body) {
                     int frags = hero.getEnemyKilled();
                     frags++;
                     hero.setEnemyKilled(frags);
@@ -458,15 +458,6 @@ public abstract class CommonLevel extends PlayLevel {
 
     protected boolean isHero(Body body) {
         return body == hero.getBody();
-    }
-
-    protected abstract float getWidth();
-
-    protected abstract float getHeight();
-
-    @Override
-    public String getLevelDescription() {
-        return "";
     }
 
     class RayCastClosestCallback implements RayCastCallback {
@@ -542,4 +533,8 @@ public abstract class CommonLevel extends PlayLevel {
     public void processJoint(Joint joint, Long tag) {
 
     }
+
+    protected abstract float getWidth();
+
+    protected abstract float getHeight();
 }

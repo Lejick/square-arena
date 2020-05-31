@@ -221,11 +221,7 @@ public class Arena01 extends CommonLevel {
 
     @Override
     protected int getLevelIndex() {
-        return 6;
-    }
-
-    @Override
-    protected void checkEnemyAction() {
+        return 0;
     }
 
     @Override
