@@ -160,6 +160,7 @@ public class Arena01 extends CommonLevel {
         Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
         destroyableList.add(heroBody);
         hero = new Player(heroBody, getWorld());
+        objToSerialList.add(hero);
     }
 
     protected void createPlatforms() {
@@ -210,14 +211,16 @@ public class Arena01 extends CommonLevel {
         Random rand = new Random();
         Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
         Integer direction = 0;
+        Player enemy = new Player(enemyBody, getWorld());
         while (direction == 0) {
             direction = rand.nextInt(3) - 1;
-            Player enemy = new Player(enemyBody, getWorld());
             enemy.getBody().setLinearVelocity(new Vec2(direction * 6, 0));
             playersList.add(enemy);
             destroyableList.add(enemyBody);
         }
+        objToSerialList.add(enemy);
     }
+
 
     @Override
     protected int getLevelIndex() {

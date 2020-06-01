@@ -42,9 +42,10 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Fixture> objectForJump = new ArrayList<>();
     protected List<Body> bulletList = new ArrayList<>();
     protected Player hero;
+    protected int nextId = 0;
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
-
+    protected List<Object> objToSerialList = new ArrayList<>();
     protected List<Gun> gunList = new ArrayList<>();
     protected List<Body> destroyableList = Collections.synchronizedList(new ArrayList<>());
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
@@ -166,6 +167,7 @@ public abstract class CommonLevel extends PlayLevel {
                         if (enemy_bullet != null) {
                             bulletList.add(enemy_bullet);
                             garbageObjectCollector.add(enemy_bullet, last_step + 400);
+                            objToSerialList.add(enemy_bullet);
                         }
                     }
                 }
@@ -183,6 +185,7 @@ public abstract class CommonLevel extends PlayLevel {
             Body heroBullet = hero.fireWeapon1(getWorldMouse());
             garbageObjectCollector.add(heroBullet, last_step + 400);
             bulletList.add(heroBullet);
+            objToSerialList.add(heroBullet);
         }
     }
 
