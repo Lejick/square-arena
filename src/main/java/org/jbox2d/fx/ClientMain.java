@@ -25,16 +25,18 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.jbox2d.testbed.framework.*;
+import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.AbstractTestbedController.MouseBehavior;
 import org.jbox2d.testbed.framework.AbstractTestbedController.UpdateBehavior;
+import org.jbox2d.testbed.framework.LevelsList;
+import org.jbox2d.testbed.framework.PlayModel;
 
 /**
  * The entry point for the testbed application
  *
  * @author Daniel Murphy
  */
-public class PlayableMain extends Application {
+public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         PlayModel model = new PlayModel();
@@ -50,16 +52,46 @@ public class PlayableMain extends Application {
 
         Scene scene = new Scene(testbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
         LevelsList.populateModel(model, controller, scene);
+
+
         testbed.setCenter(panel);
+
         testbed.setRight(new ScrollPane(new PlaySidePanel(model, controller)));
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("War of Shapes");
         primaryStage.show();
 
+        PlayModel clientModel = new PlayModel();
+        final AbstractTestbedController clientController = new PlayControllerJavaFX(clientModel,
+                UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
+            new Alert(Alert.AlertType.ERROR).showAndWait();
+        });
+        BorderPane clientTestbed = new BorderPane();
+
+        PlayPanelJavaFX clientPanel = new PlayPanelJavaFX(clientModel, clientController, clientTestbed);
+        clientModel.setPanel(clientPanel);
+        clientModel.setDebugDraw(new DebugPlayDrawJavaFX(clientPanel, true));
+
+        Scene clientScene = new Scene(clientTestbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
+        LevelsList.populateModel(clientModel, clientController, clientScene);
+
+
+        clientTestbed.setCenter(clientPanel);
+
+        clientTestbed.setRight(new ScrollPane(new PlaySidePanel(clientModel, clientController)));
+
+        Stage secondStage = new Stage();
+
+        secondStage.setScene(clientScene);
+        secondStage.setTitle("War of Shapes");
+        secondStage.show();
+
         Platform.runLater(() -> {
             controller.playTest(0);
             controller.start();
+            clientController.playTest(0);
+            clientController.start();
         });
     }
 }
