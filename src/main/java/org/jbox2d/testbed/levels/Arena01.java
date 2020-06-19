@@ -133,6 +133,7 @@ import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.GeometryBodyFactory;
+import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.jbox2d.testbed.framework.utils.Line;
 
 import java.util.List;
@@ -160,7 +161,9 @@ public class Arena01 extends CommonLevel {
         Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
         destroyableList.add(heroBody);
         hero = new Player(heroBody, getWorld());
-        objToSerialList.add(hero);
+        SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
+                hero.getBody().getPosition());
+        objToSerialList.add(heroDTO);
     }
 
     protected void createPlatforms() {
@@ -218,7 +221,9 @@ public class Arena01 extends CommonLevel {
             playersList.add(enemy);
             destroyableList.add(enemyBody);
         }
-        objToSerialList.add(enemy);
+        SerialDTO enemyDTO=new SerialDTO(enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
+                enemy.getBody().getAngularVelocity(), enemy.getBody().getPosition());
+        objToSerialList.add(enemyDTO);
     }
 
 

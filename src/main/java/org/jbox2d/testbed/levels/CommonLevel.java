@@ -17,6 +17,7 @@ import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.*;
 import org.jbox2d.testbed.framework.game.objects.Gun;
 import org.jbox2d.testbed.framework.game.objects.MovingObject;
+import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.jbox2d.testbed.framework.game.objects.SwitchType;
 import org.jbox2d.testbed.framework.utils.GarbageObjectCollector;
 import org.jbox2d.testbed.framework.utils.Line;
@@ -29,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Daniel Murphy
+ * @author Oleg Trohov
  */
 public abstract class CommonLevel extends PlayLevel {
     protected static final Logger log = LoggerFactory.getLogger(CommonLevel.class);
@@ -42,10 +43,9 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Fixture> objectForJump = new ArrayList<>();
     protected List<Body> bulletList = new ArrayList<>();
     protected Player hero;
-    protected int nextId = 0;
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
-    protected List<Object> objToSerialList = new ArrayList<>();
+    protected List<SerialDTO> objToSerialList = new ArrayList<>();
     protected List<Gun> gunList = new ArrayList<>();
     protected List<Body> destroyableList = Collections.synchronizedList(new ArrayList<>());
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
@@ -167,7 +167,10 @@ public abstract class CommonLevel extends PlayLevel {
                         if (enemy_bullet != null) {
                             bulletList.add(enemy_bullet);
                             garbageObjectCollector.add(enemy_bullet, last_step + 400);
-                            objToSerialList.add(enemy_bullet);
+                            SerialDTO enemyBulletDTO=new SerialDTO(enemy_bullet.getId(), enemy_bullet.getClass().getName(), enemy_bullet.getLinearVelocity(),
+                                    enemy_bullet.getAngularVelocity(),enemy_bullet.getPosition());
+
+                            objToSerialList.add(enemyBulletDTO);
                         }
                     }
                 }
@@ -184,8 +187,10 @@ public abstract class CommonLevel extends PlayLevel {
         if (cursorInFireArea() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             Body heroBullet = hero.fireWeapon1(getWorldMouse());
             garbageObjectCollector.add(heroBullet, last_step + 400);
+            SerialDTO heroBulletDTO = new SerialDTO(heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
+                    heroBullet.getAngularVelocity(), heroBullet.getPosition());
             bulletList.add(heroBullet);
-            objToSerialList.add(heroBullet);
+            objToSerialList.add(heroBulletDTO);
         }
     }
 

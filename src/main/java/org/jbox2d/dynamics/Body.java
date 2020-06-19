@@ -46,7 +46,7 @@ public class Body {
     public static final int e_toiFlag = 0x0040;
 
     public BodyType m_type;
-
+    private int id;
     public Color3f shapeColor;
 
     private boolean isDestroy;
@@ -1210,5 +1210,13 @@ public class Body {
 
     public void setDestroy(boolean destroy) {
         isDestroy = destroy;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
