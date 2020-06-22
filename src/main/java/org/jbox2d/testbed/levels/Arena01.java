@@ -118,6 +118,8 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -152,18 +154,28 @@ public class Arena01 extends CommonLevel {
     }
 
     @Override
-    public void initTest(boolean deserialized) {
-        super.initTest(false);
+    public void initTest() {
+        super.initTest();
         createGameObjects();
     }
 
     protected void createGameObjects() {
-        Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-        destroyableList.add(heroBody);
-        hero = new Player(heroBody, getWorld());
-        SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
-                hero.getBody().getPosition());
-        objToSerialList.add(heroDTO);
+
+        if (objToSerialList.size() == 0) {
+            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
+            destroyableList.add(heroBody);
+            hero = new Player(heroBody, getWorld());
+            hero.setId(getNextId());
+            SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
+                    hero.getBody().getPosition());
+            objToSerialList.add(heroDTO);
+        } else {
+            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
+            destroyableList.add(heroBody);
+            hero = new Player(heroBody, getWorld());
+            hero.setId(getNextId());
+        }
+
     }
 
     protected void createPlatforms() {
@@ -221,7 +233,7 @@ public class Arena01 extends CommonLevel {
             playersList.add(enemy);
             destroyableList.add(enemyBody);
         }
-        SerialDTO enemyDTO=new SerialDTO(enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
+        SerialDTO enemyDTO = new SerialDTO(enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
                 enemy.getBody().getAngularVelocity(), enemy.getBody().getPosition());
         objToSerialList.add(enemyDTO);
     }

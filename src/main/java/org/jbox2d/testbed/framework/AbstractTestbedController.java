@@ -23,13 +23,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.jbox2d.common.IViewportTransform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.serialization.SerializationResult;
 import org.jbox2d.serialization.UnsupportedObjectException;
+import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +77,7 @@ public abstract class AbstractTestbedController {
   private float viewportHalfWidth;
 
   public AbstractTestbedController(GamingModelIF argModel, UpdateBehavior behavior,
-      MouseBehavior mouseBehavior, TestbedErrorHandler errorHandler) {
+                                   MouseBehavior mouseBehavior, TestbedErrorHandler errorHandler) {
     model = argModel;
     inputQueue = new LinkedList<>();
     setFrameRate(DEFAULT_FPS);
@@ -168,12 +171,20 @@ public abstract class AbstractTestbedController {
     model.getPanel().grabFocus();
 
     if (currTest != null) {
-      currTest.init(model);
+      currTest.init(model, getSerialDTOList());
     }
   }
 
+  public List<SerialDTO> getSerialDTOList() {
+    return model.getCurrTest().getObjToSerialList();
+  }
+
+  public void setSerialDTOList(List<SerialDTO> serialDTOList) {
+    this.model.getCurrTest().setObjToSerialList(serialDTOList);
+  }
+
   private void initTest(PlayLevel test) {
-    test.init(model);
+    test.init(model, getSerialDTOList());
     test.getCamera().getTransform().setExtents(viewportHalfWidth, viewportHalfHeight);
     model.getPanel().grabFocus();
   }
@@ -186,7 +197,7 @@ public abstract class AbstractTestbedController {
   public void updateTest() {
     if (resetPending) {
       if (currTest != null) {
-        currTest.init(model);
+        currTest.init(model,getSerialDTOList());
       }
       resetPending = false;
       model.getPanel().grabFocus();
@@ -462,7 +473,7 @@ public abstract class AbstractTestbedController {
     }
     log.debug("Deserialized world from " + currTest.getFilename());
 
-    currTest.init(w, true);
+    currTest.init(w);
   }
 }
 

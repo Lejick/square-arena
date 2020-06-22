@@ -58,6 +58,7 @@ import org.jbox2d.serialization.*;
 import org.jbox2d.serialization.JbSerializer.ObjectSigner;
 import org.jbox2d.serialization.pb.PbDeserializer;
 import org.jbox2d.serialization.pb.PbSerializer;
+import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.jbox2d.testbed.framework.utils.ListenerAdapter;
 import org.jbox2d.testbed.framework.utils.ParticleVelocityQueryCallback;
 import org.jbox2d.testbed.framework.utils.SignerAdapter;
@@ -93,7 +94,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
     private final Vec2 bombMousePoint = new Vec2();
     private final Vec2 bombSpawnPoint = new Vec2();
     private boolean bombSpawning = false;
-
+    protected List<SerialDTO> objToSerialList = new ArrayList<>();
     protected boolean mouseTracing;
     private Vec2 mouseTracerPosition = new Vec2();
     private Vec2 mouseTracerVelocity = new Vec2();
@@ -200,9 +201,9 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
         camera = new TestbedCamera(getDefaultCameraPos(), getDefaultCameraScale(), ZOOM_SCALE_DIFF);
     }
 
-    public void init(GamingModelIF model) {
+    public void init(GamingModelIF model, List<SerialDTO> serialDTOList) {
         this.model = model;
-
+        this.objToSerialList = serialDTOList;
         Vec2 gravity = new Vec2(0, -10f);
         m_world = model.getWorldCreator().createWorld(gravity);
         m_world.setParticleGravityScale(0.4f);
@@ -217,10 +218,10 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
         BodyDef bodyDef = new BodyDef();
         groundBody = m_world.createBody(bodyDef);
 
-        init(m_world, false);
+        init(m_world);
     }
 
-    public void init(World world, boolean deserialized) {
+    public void init(World world) {
         m_world = world;
         pointCount = 0;
         stepCount = 0;
@@ -232,7 +233,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
         world.setContactListener(this);
         world.setDebugDraw(model.getDebugDraw());
         title = getLevelName() + "\n" + getLevelDescription();
-        initTest(deserialized);
+        initTest();
     }
 
     protected JbSerializer getSerializer() {
@@ -356,14 +357,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
     }
 
     /**
-     * Initializes the current test.
-     *
-     * @param deserialized if the test was deserialized from a file. If so, all physics objects are
-     *                     already added.
-     */
-    public abstract void initTest(boolean deserialized);
-
-    /**
      * The name of the test
      */
     public abstract String getLevelName();
@@ -382,6 +375,9 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
      */
     public void exit() {
     }
+
+    public abstract void initTest();
+
     protected abstract Logger getLogger();
 
 
@@ -730,6 +726,14 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
             cp.separation = worldManifold.separations[i];
             ++pointCount;
         }
+    }
+
+    public List<SerialDTO> getObjToSerialList() {
+        return objToSerialList;
+    }
+
+    public void setObjToSerialList(List<SerialDTO> objToSerialList) {
+        this.objToSerialList = objToSerialList;
     }
 }
 

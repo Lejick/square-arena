@@ -91,7 +91,9 @@ public class ClientMain extends Application {
             controller.playTest(0);
             controller.start();
             clientController.playTest(0);
+            clientController.setSerialDTOList(controller.getSerialDTOList());
             clientController.start();
+
         });
     }
 }

@@ -45,7 +45,6 @@ public abstract class CommonLevel extends PlayLevel {
     protected Player hero;
     protected AbstractTestbedController controller;
     protected List<Body> movingObject = new ArrayList<>();
-    protected List<SerialDTO> objToSerialList = new ArrayList<>();
     protected List<Gun> gunList = new ArrayList<>();
     protected List<Body> destroyableList = Collections.synchronizedList(new ArrayList<>());
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
@@ -54,6 +53,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Fixture> rightBlockedFixtures = new ArrayList<>();
     protected List<MovingObject> movingObjectList = new ArrayList<>();
     protected List<Player> playersList;
+    protected int nextId = 0;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
 
@@ -68,7 +68,7 @@ public abstract class CommonLevel extends PlayLevel {
     }
 
     @Override
-    public void initTest(boolean deserialized) {
+    public void initTest() {
         ccallback = new RayCastClosestCallback();
         garbageObjectCollector = new GarbageObjectCollector();
         last_step = 0;
@@ -540,6 +540,11 @@ public abstract class CommonLevel extends PlayLevel {
     @Override
     public void processJoint(Joint joint, Long tag) {
 
+    }
+
+    protected int getNextId() {
+        nextId++;
+        return nextId;
     }
 
     protected abstract float getWidth();
