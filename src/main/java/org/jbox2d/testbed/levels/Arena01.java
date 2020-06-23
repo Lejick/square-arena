@@ -160,22 +160,13 @@ public class Arena01 extends CommonLevel {
     }
 
     protected void createGameObjects() {
-
-        if (objToSerialList.size() == 0) {
-            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-            destroyableList.add(heroBody);
-            hero = new Player(heroBody, getWorld());
-            hero.setId(getNextId());
-            SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
-                    hero.getBody().getPosition());
-            objToSerialList.add(heroDTO);
-        } else {
-            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-            destroyableList.add(heroBody);
-            hero = new Player(heroBody, getWorld());
-            hero.setId(getNextId());
-        }
-
+        Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
+        destroyableList.add(heroBody);
+        hero = new Player(heroBody, getWorld());
+        hero.setId(getNextId());
+        SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
+                hero.getBody().getPosition());
+        objToSerialList.add(heroDTO);
     }
 
     protected void createPlatforms() {

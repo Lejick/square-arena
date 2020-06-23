@@ -29,7 +29,11 @@ import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.AbstractTestbedController.MouseBehavior;
 import org.jbox2d.testbed.framework.AbstractTestbedController.UpdateBehavior;
 import org.jbox2d.testbed.framework.LevelsList;
+import org.jbox2d.testbed.framework.PlayLevel;
 import org.jbox2d.testbed.framework.PlayModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The entry point for the testbed application
@@ -39,14 +43,14 @@ import org.jbox2d.testbed.framework.PlayModel;
 public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage) {
-        final AbstractTestbedController serverController = new PlayControllerJavaFX(new PlayModel(),
+        final PlayControllerJavaFX serverController = new PlayControllerJavaFX(new PlayModel(),
                 UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
             new Alert(Alert.AlertType.ERROR).showAndWait();
         });
         Stage serverStage = createStage("War of Shapes", serverController);
         serverStage.show();
 
-        final AbstractTestbedController clientController1 = new PlayControllerJavaFX(new PlayModel(),
+        final PlayControllerJavaFX clientController1 = new PlayControllerJavaFX(new PlayModel(),
                 UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
             new Alert(Alert.AlertType.ERROR).showAndWait();
         });
@@ -54,7 +58,7 @@ public class ClientMain extends Application {
         clientStage1.show();
 
 
-        final AbstractTestbedController clientController2 = new PlayControllerJavaFX(new PlayModel(),
+        final PlayControllerJavaFX clientController2 = new PlayControllerJavaFX(new PlayModel(),
                 UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
             new Alert(Alert.AlertType.ERROR).showAndWait();
         });
@@ -63,14 +67,18 @@ public class ClientMain extends Application {
 
         Platform.runLater(() -> {
             serverController.playTest(1);
+            serverController.getModel().getCurrTest().setServer(true);
             serverController.start();
             clientController1.playTest(1);
-            clientController1.setSerialDTOList(serverController.getSerialDTOList());
+            clientController1.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
             clientController1.start();
             clientController2.playTest(1);
-            clientController2.setSerialDTOList(serverController.getSerialDTOList());
+            clientController2.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
             clientController2.start();
-
+            List<PlayLevel> levelList=new ArrayList<>();
+            levelList.add(clientController1.getModel().getCurrTest());
+            levelList.add(clientController2.getModel().getCurrTest());
+            serverController.getModel().getCurrTest().setClientLevelList(levelList);
         });
     }
 

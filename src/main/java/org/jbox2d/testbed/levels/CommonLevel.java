@@ -175,11 +175,12 @@ public abstract class CommonLevel extends PlayLevel {
                     }
                 }
             }
+            hero.decrWeapon1CD();
         }
         for (Player player : playersList) {
             player.decrWeapon1CD();
         }
-        hero.decrWeapon1CD();
+
     }
 
 
@@ -389,7 +390,7 @@ public abstract class CommonLevel extends PlayLevel {
             scene.setCursor(Cursor.DEFAULT);
         }
 
-        if (!hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
+        if (hero!=null && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             ccallback.init();
             Vec2 point1 = hero.getBody().getPosition();
             Vec2 point2 = getWorldMouse();
@@ -465,7 +466,7 @@ public abstract class CommonLevel extends PlayLevel {
     }
 
     protected boolean isHero(Body body) {
-        return body == hero.getBody();
+        return hero!=null && body == hero.getBody();
     }
 
     class RayCastClosestCallback implements RayCastCallback {

@@ -76,7 +76,9 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
     public static final int TEXT_SECTION_SPACE = 3;
     public static final int MOUSE_JOINT_BUTTON = 1;
     public static final int BOMB_SPAWN_BUTTON = 10;
-
+    protected boolean isServer;
+    protected List<PlayLevel> clientLevelList;
+    protected PlayLevel serverLevel;
     protected static final long GROUND_BODY_TAG = 1897450239847L;
     protected static final long BOMB_TAG = 98989788987L;
     protected static final long MOUSE_JOINT_TAG = 4567893364789L;
@@ -734,6 +736,30 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
 
     public void setObjToSerialList(List<SerialDTO> objToSerialList) {
         this.objToSerialList = objToSerialList;
+    }
+
+    public boolean isServer() {
+        return isServer;
+    }
+
+    public void setServer(boolean server) {
+        isServer = server;
+    }
+
+    public List<PlayLevel> getClientLevelList() {
+        return clientLevelList;
+    }
+
+    public void setClientLevelList(List<PlayLevel> clientLevelList) {
+        this.clientLevelList = clientLevelList;
+    }
+
+    public PlayLevel getServerLevel() {
+        return serverLevel;
+    }
+
+    public void setServerLevel(PlayLevel serverLevel) {
+        this.serverLevel = serverLevel;
     }
 }
 

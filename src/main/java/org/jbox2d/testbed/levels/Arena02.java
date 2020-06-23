@@ -161,7 +161,7 @@ public class Arena02 extends CommonLevel {
 
     protected void createGameObjects() {
 
-        if (objToSerialList.size() == 0) {
+        if (isServer) {
             Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
             destroyableList.add(heroBody);
             hero = new Player(heroBody, getWorld());
@@ -170,10 +170,7 @@ public class Arena02 extends CommonLevel {
                     hero.getBody().getPosition());
             objToSerialList.add(heroDTO);
         } else {
-            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-            destroyableList.add(heroBody);
-            hero = new Player(heroBody, getWorld());
-            hero.setId(getNextId());
+            List<SerialDTO> list = getServerLevel().getObjToSerialList();
         }
 
     }
