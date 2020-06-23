@@ -418,6 +418,9 @@ public abstract class AbstractTestbedController {
     }
   }
 
+  public GamingModelIF getModel() {
+    return model;
+  }
 
   private void _save() {
     SerializationResult result;
@@ -509,4 +512,6 @@ class QueueItem {
     c = cr;
     code = cd;
   }
+
+
 }

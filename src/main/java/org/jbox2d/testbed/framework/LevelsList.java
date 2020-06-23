@@ -33,5 +33,6 @@ public class LevelsList {
 
   public static void populateModel(PlayModel model, AbstractTestbedController controller, Scene scene) {
     model.addTest(new Arena01(controller,scene));
+    model.addTest(new Arena02(controller,scene));
   }
 }

@@ -39,61 +39,61 @@ import org.jbox2d.testbed.framework.PlayModel;
 public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage) {
-        PlayModel model = new PlayModel();
-        final AbstractTestbedController controller = new PlayControllerJavaFX(model,
+        final AbstractTestbedController serverController = new PlayControllerJavaFX(new PlayModel(),
                 UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
             new Alert(Alert.AlertType.ERROR).showAndWait();
         });
-        BorderPane testbed = new BorderPane();
+        Stage serverStage = createStage("War of Shapes", serverController);
+        serverStage.show();
 
-        PlayPanelJavaFX panel = new PlayPanelJavaFX(model, controller, testbed);
-        model.setPanel(panel);
-        model.setDebugDraw(new DebugPlayDrawJavaFX(panel, true));
-
-        Scene scene = new Scene(testbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
-        LevelsList.populateModel(model, controller, scene);
-
-
-        testbed.setCenter(panel);
-
-        testbed.setRight(new ScrollPane(new PlaySidePanel(model, controller)));
-
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("War of Shapes");
-        primaryStage.show();
-
-        PlayModel clientModel = new PlayModel();
-        final AbstractTestbedController clientController = new PlayControllerJavaFX(clientModel,
+        final AbstractTestbedController clientController1 = new PlayControllerJavaFX(new PlayModel(),
                 UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
             new Alert(Alert.AlertType.ERROR).showAndWait();
         });
+        Stage clientStage1 = createStage("War of Shapes", clientController1);
+        clientStage1.show();
+
+
+        final AbstractTestbedController clientController2 = new PlayControllerJavaFX(new PlayModel(),
+                UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
+            new Alert(Alert.AlertType.ERROR).showAndWait();
+        });
+        Stage clientStage2 = createStage("War of Shapes", clientController2);
+        clientStage2.show();
+
+        Platform.runLater(() -> {
+            serverController.playTest(1);
+            serverController.start();
+            clientController1.playTest(1);
+            clientController1.setSerialDTOList(serverController.getSerialDTOList());
+            clientController1.start();
+            clientController2.playTest(1);
+            clientController2.setSerialDTOList(serverController.getSerialDTOList());
+            clientController2.start();
+
+        });
+    }
+
+    private Stage createStage(String title, AbstractTestbedController controller) {
+        PlayModel clientModel = (PlayModel) controller.getModel();
         BorderPane clientTestbed = new BorderPane();
 
-        PlayPanelJavaFX clientPanel = new PlayPanelJavaFX(clientModel, clientController, clientTestbed);
+        PlayPanelJavaFX clientPanel = new PlayPanelJavaFX(clientModel, controller, clientTestbed);
         clientModel.setPanel(clientPanel);
         clientModel.setDebugDraw(new DebugPlayDrawJavaFX(clientPanel, true));
 
         Scene clientScene = new Scene(clientTestbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
-        LevelsList.populateModel(clientModel, clientController, clientScene);
+        LevelsList.populateModel(clientModel, controller, clientScene);
 
 
         clientTestbed.setCenter(clientPanel);
 
-        clientTestbed.setRight(new ScrollPane(new PlaySidePanel(clientModel, clientController)));
+        clientTestbed.setRight(new ScrollPane(new PlaySidePanel(clientModel, controller)));
 
-        Stage secondStage = new Stage();
+        Stage stage = new Stage();
 
-        secondStage.setScene(clientScene);
-        secondStage.setTitle("War of Shapes");
-        secondStage.show();
-
-        Platform.runLater(() -> {
-            controller.playTest(0);
-            controller.start();
-            clientController.playTest(0);
-            clientController.setSerialDTOList(controller.getSerialDTOList());
-            clientController.start();
-
-        });
+        stage.setScene(clientScene);
+        stage.setTitle(title);
+        return stage;
     }
 }
