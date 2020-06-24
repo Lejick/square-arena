@@ -1,6 +1,5 @@
 package org.jbox2d.testbed.framework.game.objects;
 
-import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Color3f;
 import org.jbox2d.common.Vec2;
