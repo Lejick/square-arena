@@ -120,6 +120,10 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -133,12 +137,15 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
+import org.jbox2d.testbed.framework.PlayLevel;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.GeometryBodyFactory;
 import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.jbox2d.testbed.framework.utils.Line;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -160,19 +167,33 @@ public class Arena02 extends CommonLevel {
     }
 
     protected void createGameObjects() {
-
         if (isServer) {
-            Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-            destroyableList.add(heroBody);
-            hero = new Player(heroBody, getWorld());
-            hero.setId(getNextId());
-            SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
-                    hero.getBody().getPosition());
-            objToSerialList.add(heroDTO);
+            for (PlayLevel playLevel : clientLevelList) {
+                levelToHeroIdsMap.putIfAbsent(playLevel.getId(), getNextId());
+            }
+            for (PlayLevel playLevel : clientLevelList) {
+
+                Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
+                //     destroyableList.add(playerBody);
+                Player player = new Player(playerBody, getWorld());
+                playersList.add(player);
+            }
+            for (PlayLevel playLevel : clientLevelList) {
+                List<SerialDTO> objectsToSend = new ArrayList<>();
+                for (Player player : playersList) {
+                    SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                            player.getBody().getPosition(), false);
+                    objectsToSend.add(heroDTO);
+                }
+                sendToClients(objectsToSend, playLevel.getId());
+            }
         } else {
             List<SerialDTO> list = getServerLevel().getObjToSerialList();
         }
+    }
 
+    protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
+        System.out.println();
     }
 
     protected void createPlatforms() {
@@ -213,28 +234,7 @@ public class Arena02 extends CommonLevel {
     @Override
     public void step(SettingsIF settings) {
         super.step(settings);
-        List<Player> alive = playersList.stream().filter(enemy -> !enemy.getBody().isDestroy()).collect(Collectors.toList());
-        if (alive.size() == 0) {
-            resetEnemy();
-        }
     }
-
-    private void resetEnemy() {
-        Random rand = new Random();
-        Body enemyBody = GeometryBodyFactory.createRectangle(0f, 18, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-        Integer direction = 0;
-        Player enemy = new Player(enemyBody, getWorld());
-        while (direction == 0) {
-            direction = rand.nextInt(3) - 1;
-            enemy.getBody().setLinearVelocity(new Vec2(direction * 6, 0));
-            playersList.add(enemy);
-            destroyableList.add(enemyBody);
-        }
-        SerialDTO enemyDTO = new SerialDTO(enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
-                enemy.getBody().getAngularVelocity(), enemy.getBody().getPosition());
-        objToSerialList.add(enemyDTO);
-    }
-
 
     @Override
     protected int getLevelIndex() {

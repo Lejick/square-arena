@@ -73,10 +73,10 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
     public static final int MAX_CONTACT_POINTS = 4048;
     public static final float ZOOM_SCALE_DIFF = .05f;
     public static final int TEXT_LINE_SPACE = 13;
-    public static final int TEXT_SECTION_SPACE = 3;
     public static final int MOUSE_JOINT_BUTTON = 1;
     public static final int BOMB_SPAWN_BUTTON = 10;
     protected boolean isServer;
+    protected int id;
     protected List<PlayLevel> clientLevelList;
     protected PlayLevel serverLevel;
     protected static final long GROUND_BODY_TAG = 1897450239847L;
@@ -445,7 +445,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
             ++stepCount;
         }
 
-       debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),Color3f.WHITE);
+        debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(), Color3f.WHITE);
        /* if (settings.getSetting(PlayedSettings.DrawStats).enabled) {
         debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),Color3f.WHITE);
             m_textLine += TEXT_LINE_SPACE;
@@ -760,6 +760,14 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
 
     public void setServerLevel(PlayLevel serverLevel) {
         this.serverLevel = serverLevel;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
 

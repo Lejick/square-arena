@@ -120,6 +120,8 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -164,8 +166,8 @@ public class Arena01 extends CommonLevel {
         destroyableList.add(heroBody);
         hero = new Player(heroBody, getWorld());
         hero.setId(getNextId());
-        SerialDTO heroDTO = new SerialDTO(hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
-                hero.getBody().getPosition());
+        SerialDTO heroDTO = new SerialDTO(last_step, hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
+                hero.getBody().getPosition(), true);
         objToSerialList.add(heroDTO);
     }
 
@@ -224,8 +226,8 @@ public class Arena01 extends CommonLevel {
             playersList.add(enemy);
             destroyableList.add(enemyBody);
         }
-        SerialDTO enemyDTO = new SerialDTO(enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
-                enemy.getBody().getAngularVelocity(), enemy.getBody().getPosition());
+        SerialDTO enemyDTO = new SerialDTO(last_step, enemy.getId(), enemy.getClass().getName(), enemy.getBody().getLinearVelocity(),
+                enemy.getBody().getAngularVelocity(), enemy.getBody().getPosition(), false);
         objToSerialList.add(enemyDTO);
     }
 

@@ -25,9 +25,7 @@ import org.jbox2d.testbed.framework.utils.LineIntersectChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Oleg Trohov
@@ -41,6 +39,7 @@ public abstract class CommonLevel extends PlayLevel {
     long last_step = 0;
     private static float bulletDeathVelocity = 75;
     protected List<Fixture> objectForJump = new ArrayList<>();
+    protected Map<Integer, Integer> levelToHeroIdsMap = new HashMap<>();
     protected List<Body> bulletList = new ArrayList<>();
     protected Player hero;
     protected AbstractTestbedController controller;
@@ -167,8 +166,8 @@ public abstract class CommonLevel extends PlayLevel {
                         if (enemy_bullet != null) {
                             bulletList.add(enemy_bullet);
                             garbageObjectCollector.add(enemy_bullet, last_step + 400);
-                            SerialDTO enemyBulletDTO=new SerialDTO(enemy_bullet.getId(), enemy_bullet.getClass().getName(), enemy_bullet.getLinearVelocity(),
-                                    enemy_bullet.getAngularVelocity(),enemy_bullet.getPosition());
+                            SerialDTO enemyBulletDTO=new SerialDTO(last_step,enemy_bullet.getId(), enemy_bullet.getClass().getName(), enemy_bullet.getLinearVelocity(),
+                                    enemy_bullet.getAngularVelocity(),enemy_bullet.getPosition(),false);
 
                             objToSerialList.add(enemyBulletDTO);
                         }
@@ -188,8 +187,8 @@ public abstract class CommonLevel extends PlayLevel {
         if (cursorInFireArea() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
             Body heroBullet = hero.fireWeapon1(getWorldMouse());
             garbageObjectCollector.add(heroBullet, last_step + 400);
-            SerialDTO heroBulletDTO = new SerialDTO(heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
-                    heroBullet.getAngularVelocity(), heroBullet.getPosition());
+            SerialDTO heroBulletDTO = new SerialDTO(last_step,heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
+                    heroBullet.getAngularVelocity(), heroBullet.getPosition(),false);
             bulletList.add(heroBullet);
             objToSerialList.add(heroBulletDTO);
         }
