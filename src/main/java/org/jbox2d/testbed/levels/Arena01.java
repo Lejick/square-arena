@@ -162,12 +162,12 @@ public class Arena01 extends CommonLevel {
     }
 
     protected void createGameObjects() {
-        Body heroBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-        destroyableList.add(heroBody);
-        hero = new Player(heroBody, getWorld());
-        hero.setId(getNextId());
-        SerialDTO heroDTO = new SerialDTO(last_step, hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
-                hero.getBody().getPosition(), true);
+        Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
+        destroyableList.add(playerBody);
+       Player player = new Player(playerBody, getWorld());
+        playerBody.setId(getNextId());
+        SerialDTO heroDTO = new SerialDTO(last_step, playerBody.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                player.getBody().getPosition(), true);
         objToSerialList.add(heroDTO);
     }
 
