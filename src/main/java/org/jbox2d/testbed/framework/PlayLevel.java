@@ -38,7 +38,6 @@ import org.jbox2d.collision.Collision.PointState;
 import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.WorldManifold;
 import org.jbox2d.collision.shapes.CircleShape;
-import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Color3f;
 import org.jbox2d.common.Settings;
 import org.jbox2d.common.Transform;
@@ -55,20 +54,15 @@ import org.jbox2d.dynamics.joints.MouseJoint;
 import org.jbox2d.dynamics.joints.MouseJointDef;
 import org.jbox2d.particle.ParticleGroup;
 import org.jbox2d.serialization.*;
-import org.jbox2d.serialization.JbSerializer.ObjectSigner;
-import org.jbox2d.serialization.pb.PbDeserializer;
-import org.jbox2d.serialization.pb.PbSerializer;
 import org.jbox2d.testbed.framework.game.objects.SerialDTO;
-import org.jbox2d.testbed.framework.utils.ListenerAdapter;
 import org.jbox2d.testbed.framework.utils.ParticleVelocityQueryCallback;
-import org.jbox2d.testbed.framework.utils.SignerAdapter;
 import org.jbox2d.testbed.framework.utils.TestQueryCallback;
 import org.slf4j.Logger;
 
 /**
  * @author Daniel Murphy
  */
-public abstract class PlayLevel implements ContactListener, ObjectListener, ObjectSigner,
+public abstract class PlayLevel implements ContactListener, ObjectListener,
         UnsupportedListener {
     public static final int MAX_CONTACT_POINTS = 4048;
     public static final float ZOOM_SCALE_DIFF = .05f;
@@ -115,10 +109,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
     private final LinkedList<String> textList = new LinkedList<String>();
 
     private TestbedCamera camera;
-
-    private JbSerializer serializer;
-    private JbDeserializer deserializer;
-
     private final Transform identity = new Transform();
 
     public PlayLevel() {
@@ -126,55 +116,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
         for (int i = 0; i < MAX_CONTACT_POINTS; i++) {
             points[i] = new ContactPoint();
         }
-        serializer = new PbSerializer(this, new SignerAdapter(this) {
-            @Override
-            public Long getTag(Body argBody) {
-                if (isSaveLoadEnabled()) {
-                    if (argBody == groundBody) {
-                        return GROUND_BODY_TAG;
-                    } else if (argBody == bomb) {
-                        return BOMB_TAG;
-                    }
-                }
-                return super.getTag(argBody);
-            }
-
-            @Override
-            public Long getTag(Joint argJoint) {
-                if (isSaveLoadEnabled()) {
-                    if (argJoint == mouseJoint) {
-                        return MOUSE_JOINT_TAG;
-                    }
-                }
-                return super.getTag(argJoint);
-            }
-        });
-        deserializer = new PbDeserializer(this, new ListenerAdapter(this) {
-            @Override
-            public void processBody(Body argBody, Long argTag) {
-                if (isSaveLoadEnabled()) {
-                    if (argTag == GROUND_BODY_TAG) {
-                        groundBody = argBody;
-                        return;
-                    } else if (argTag == BOMB_TAG) {
-                        bomb = argBody;
-                        return;
-                    }
-                }
-                super.processBody(argBody, argTag);
-            }
-
-            @Override
-            public void processJoint(Joint argJoint, Long argTag) {
-                if (isSaveLoadEnabled()) {
-                    if (argTag == MOUSE_JOINT_TAG) {
-                        mouseJoint = (MouseJoint) argJoint;
-                        return;
-                    }
-                }
-                super.processJoint(argJoint, argTag);
-            }
-        });
         destructionListener = new DestructionListener() {
             public void sayGoodbye(Fixture fixture) {
                 fixtureDestroyed(fixture);
@@ -236,14 +177,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener, Obje
         world.setDebugDraw(model.getDebugDraw());
         title = getLevelName() + "\n" + getLevelDescription();
         initTest();
-    }
-
-    protected JbSerializer getSerializer() {
-        return serializer;
-    }
-
-    protected JbDeserializer getDeserializer() {
-        return deserializer;
     }
 
     /**

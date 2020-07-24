@@ -1,8 +1,6 @@
 package org.jbox2d.testbed.levels;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import org.jbox2d.callbacks.RayCastCallback;
 import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
@@ -105,23 +103,6 @@ public abstract class CommonLevel extends PlayLevel {
                 player.jump();
             }
         }
-    }
-
-    protected void endLevel() {
-        getModel().getSettings().setPause(true);
-        getModel().resetKeys();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(null);
-        alert.setHeaderText(null);
-        alert.setContentText("Good game. You won! Click OK to restart.");
-        alert.setOnHidden(evt -> {
-            Platform.runLater(() -> {
-                getModel().getSettings().setPause(false);
-                controller.playTest(getLevelIndex());
-                controller.reset();
-            });
-        });
-        alert.show();
     }
 
     @Override
@@ -313,7 +294,6 @@ public abstract class CommonLevel extends PlayLevel {
         super.step(settings);
         explose();
         keyPressed();
-        checkMovement();
         environmetsActions();
         collectgarbage();
         last_step++;
@@ -369,31 +349,6 @@ public abstract class CommonLevel extends PlayLevel {
             return fraction;
         }
 
-    }
-
-    @Override
-    public Long getTag(World world) {
-        return null;
-    }
-
-    @Override
-    public Long getTag(Body body) {
-        return null;
-    }
-
-    @Override
-    public Long getTag(Shape shape) {
-        return null;
-    }
-
-    @Override
-    public Long getTag(Joint joint) {
-        return null;
-    }
-
-    @Override
-    public Long getTag(Fixture fixture) {
-        return null;
     }
 
     @Override
