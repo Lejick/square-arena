@@ -126,7 +126,7 @@ public abstract class CommonLevel extends PlayLevel {
                 Body heroBullet = player.fireWeapon1(getWorldMouse());
                 garbageObjectCollector.add(heroBullet, last_step + 400);
                 SerialDTO heroBulletDTO = new SerialDTO(last_step, heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
-                        heroBullet.getAngularVelocity(), heroBullet.getPosition(), false);
+                        heroBullet.getAngularVelocity(), heroBullet.getPosition(), 0);
                 bulletList.add(heroBullet);
                 objToSerialList.add(heroBulletDTO);
             }

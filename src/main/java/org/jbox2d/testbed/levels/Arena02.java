@@ -181,19 +181,22 @@ public class Arena02 extends CommonLevel {
             for (PlayLevel playLevel : clientLevelList) {
                 List<SerialDTO> objectsToSend = new ArrayList<>();
                 for (Player player : playersList) {
-                    SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                            player.getBody().getPosition(), false);
+                    SerialDTO heroDTO = new SerialDTO(last_step, player.getLevelId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                            player.getBody().getPosition(), playLevel.getId());
                     objectsToSend.add(heroDTO);
                 }
                 sendToClients(objectsToSend, playLevel.getId());
             }
         } else {
             List<SerialDTO> list = getServerLevel().getObjToSerialList();
+            for(SerialDTO serialDTO:list){
+                System.out.println(serialDTO.getLevelId());
+            }
         }
     }
 
     protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
-        System.out.println();
+        getServerLevel().setObjToSerialList(objectsToSend);
     }
 
     protected void createPlatforms() {

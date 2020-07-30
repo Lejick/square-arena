@@ -25,6 +25,7 @@ public class Player {
     protected World world;
     private int weapon1CD = 0;
     private int enemyKilled = 0;
+    private int LevelId;
     private int id;
     public List<Fixture> contactObjForJump = new ArrayList<>();
 
@@ -126,6 +127,14 @@ public class Player {
 
     public void setEnemyKilled(int enemyKilled) {
         this.enemyKilled = enemyKilled;
+    }
+
+    public int getLevelId() {
+        return LevelId;
+    }
+
+    public void setLevelId(int levelId) {
+        LevelId = levelId;
     }
 
     public int getId() {
