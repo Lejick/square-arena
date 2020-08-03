@@ -124,6 +124,10 @@
  * Created at 4:56:29 AM Jan 14, 2011
  * <p>
  * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
+ * <p>
+ * Created at 4:56:29 AM Jan 14, 2011
  */
 /**
  * Created at 4:56:29 AM Jan 14, 2011
@@ -167,30 +171,33 @@ public class Arena02 extends CommonLevel {
     }
 
     protected void createGameObjects() {
+        List<SerialDTO> objectsToSend = new ArrayList<>();
         if (isServer) {
             for (PlayLevel playLevel : clientLevelList) {
-                levelToHeroIdsMap.putIfAbsent(playLevel.getId(), getNextId());
-            }
-            for (PlayLevel playLevel : clientLevelList) {
-
-                Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.BLUE);
-                //     destroyableList.add(playerBody);
+                int playerId = getNextId();
+                levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
+                Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
                 Player player = new Player(playerBody, getWorld());
+                player.setId(playerId);
                 playersList.add(player);
-            }
-            for (PlayLevel playLevel : clientLevelList) {
-                List<SerialDTO> objectsToSend = new ArrayList<>();
-                for (Player player : playersList) {
-                    SerialDTO heroDTO = new SerialDTO(last_step, player.getLevelId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                            player.getBody().getPosition(), playLevel.getId());
-                    objectsToSend.add(heroDTO);
-                }
+                SerialDTO heroDTO = new SerialDTO(last_step, player.getLevelId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                        player.getBody().getPosition(), playLevel.getId());
+                objectsToSend.add(heroDTO);
                 sendToClients(objectsToSend, playLevel.getId());
             }
         } else {
             List<SerialDTO> list = getServerLevel().getObjToSerialList();
-            for(SerialDTO serialDTO:list){
-                System.out.println(serialDTO.getLevelId());
+            for (SerialDTO serialDTO : list) {
+                Color3f color3f = Color3f.RED;
+                if (serialDTO.getLevelId() == getId()) {
+                    color3f = Color3f.BLUE;
+                }
+                Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
+                Player player = new Player(playerBody, getWorld());
+                if (serialDTO.getLevelId() == getId()) {
+                    player.setHero(true);
+                }
+                playersList.add(player);
             }
         }
     }

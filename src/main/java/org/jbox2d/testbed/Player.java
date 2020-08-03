@@ -27,6 +27,7 @@ public class Player {
     private int enemyKilled = 0;
     private int LevelId;
     private int id;
+    private boolean isHero;
     public List<Fixture> contactObjForJump = new ArrayList<>();
 
     public Player(Body heroBody, World world) {
@@ -143,5 +144,13 @@ public class Player {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public boolean isHero() {
+        return isHero;
+    }
+
+    public void setHero(boolean hero) {
+        isHero = hero;
     }
 }
