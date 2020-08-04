@@ -172,16 +172,18 @@ public class Arena02 extends CommonLevel {
 
     protected void createGameObjects() {
         List<SerialDTO> objectsToSend = new ArrayList<>();
+        int startY=-23;
         if (isServer) {
             for (PlayLevel playLevel : clientLevelList) {
                 int playerId = getNextId();
                 levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
-                Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
+                Body playerBody = GeometryBodyFactory.createRectangle(-30, startY, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
+               startY+=15;
                 Player player = new Player(playerBody, getWorld());
                 player.setId(playerId);
                 player.setLevelId(playLevel.getId());
                 playersList.add(player);
-                SerialDTO heroDTO = new SerialDTO(last_step, player.getLevelId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                         player.getBody().getPosition(), playLevel.getId());
                 objectsToSend.add(heroDTO);
                 sendToClients(objectsToSend, playLevel.getId());
@@ -203,10 +205,6 @@ public class Arena02 extends CommonLevel {
                 playersList.add(player);
             }
         }
-    }
-
-    protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
-        getServerLevel().setObjToSerialList(objectsToSend);
     }
 
     protected void createPlatforms() {

@@ -5,16 +5,14 @@ import org.jbox2d.callbacks.RayCastCallback;
 import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Color3f;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.*;
-import org.jbox2d.testbed.framework.game.objects.Gun;
-import org.jbox2d.testbed.framework.game.objects.MovingObject;
-import org.jbox2d.testbed.framework.game.objects.SerialDTO;
-import org.jbox2d.testbed.framework.game.objects.SwitchType;
+import org.jbox2d.testbed.framework.game.objects.*;
 import org.jbox2d.testbed.framework.utils.GarbageObjectCollector;
 import org.jbox2d.testbed.framework.utils.Line;
 import org.slf4j.Logger;
@@ -91,6 +89,38 @@ public abstract class CommonLevel extends PlayLevel {
         f.m_friction = 0;
     }
 
+
+    protected void applyObjects(){
+        for(Player player:playersList){
+           getWorld().destroyBody(player.getBody());
+        }
+        playersList.clear();
+        List<SerialDTO> list = getServerLevel().getObjToSerialList();
+        for (SerialDTO serialDTO : list) {
+            Color3f color3f = Color3f.RED;
+            if (serialDTO.getLevelId() == getId()) {
+                color3f = Color3f.BLUE;
+            }
+            Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
+            Player player = new Player(playerBody, getWorld());
+            player.setLevelId(serialDTO.getLevelId());
+            if (serialDTO.getLevelId() == getId()) {
+                player.setHero(true);
+            }
+            playersList.add(player);
+        }
+    }
+
+    protected void sendObjToClients() {
+        List<SerialDTO> objectsToSend = new ArrayList<>();
+        for (Player player : playersList) {
+            SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                    player.getBody().getPosition(), player.getLevelId());
+            objectsToSend.add(heroDTO);
+        }
+        sendToClients(objectsToSend, getId());
+    }
+
     public void keyPressed() {
         for (Player player : playersList) {
             if (player.isHero()) {
@@ -124,7 +154,7 @@ public abstract class CommonLevel extends PlayLevel {
 
     protected void leftMouseAction() {
         for (Player player : playersList) {
-            if (cursorInFireArea() && !player.getBody().isDestroy() && player.getWeapon1CD() == 0) {
+            if (cursorInFireArea() && !player.getBody().isDestroy() && player.getWeapon1CD() == 0 && player.isHero()) {
                 Body heroBullet = player.fireWeapon1(getWorldMouse());
                 garbageObjectCollector.add(heroBullet, last_step + 400);
                 SerialDTO heroBulletDTO = new SerialDTO(last_step, heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
@@ -293,12 +323,21 @@ public abstract class CommonLevel extends PlayLevel {
 
     @Override
     public void step(SettingsIF settings) {
+        if(last_step%10==0) {
+            applyObjects();
+        }
         super.step(settings);
         explose();
         keyPressed();
         environmetsActions();
         collectgarbage();
+        for (Player player : playersList) {
+            player.decrWeapon1CD();
+        }
         last_step++;
+        if (!isServer && last_step%10==0) {
+            sendObjToClients();
+        }
     }
 
     private void explose() {
@@ -351,6 +390,10 @@ public abstract class CommonLevel extends PlayLevel {
             return fraction;
         }
 
+    }
+
+    protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
+        getServerLevel().setObjToSerialList(objectsToSend);
     }
 
     @Override
