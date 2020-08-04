@@ -93,14 +93,16 @@ public abstract class CommonLevel extends PlayLevel {
 
     public void keyPressed() {
         for (Player player : playersList) {
-            if (getModel().getKeys()['a'] || getModel().getKeys()[1092]) {
-                player.left();
-            }
-            if (getModel().getKeys()['d'] || getModel().getKeys()[1074]) {
-                player.right();
-            }
-            if (getModel().getKeys()[' ']) {
-                player.jump();
+            if (player.isHero()) {
+                if (getModel().getKeys()['a'] || getModel().getKeys()[1092]) {
+                    player.left();
+                }
+                if (getModel().getKeys()['d'] || getModel().getKeys()[1074]) {
+                    player.right();
+                }
+                if (getModel().getKeys()[' ']) {
+                    player.jump();
+                }
             }
         }
     }

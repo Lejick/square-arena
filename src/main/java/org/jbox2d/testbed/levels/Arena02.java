@@ -179,6 +179,7 @@ public class Arena02 extends CommonLevel {
                 Body playerBody = GeometryBodyFactory.createRectangle(-30, -23, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
                 Player player = new Player(playerBody, getWorld());
                 player.setId(playerId);
+                player.setLevelId(playLevel.getId());
                 playersList.add(player);
                 SerialDTO heroDTO = new SerialDTO(last_step, player.getLevelId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                         player.getBody().getPosition(), playLevel.getId());
@@ -194,7 +195,9 @@ public class Arena02 extends CommonLevel {
                 }
                 Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
                 Player player = new Player(playerBody, getWorld());
+                player.setLevelId(serialDTO.getLevelId());
                 if (serialDTO.getLevelId() == getId()) {
+
                     player.setHero(true);
                 }
                 playersList.add(player);
