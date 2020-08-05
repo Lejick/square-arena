@@ -53,7 +53,10 @@ public abstract class CommonLevelServer extends CommonLevel {
             getWorld().destroyBody(player.getBody());
         }
         playersList.clear();
-        List<SerialDTO> list = getServerLevel().getObjToSerialList();
+        List<SerialDTO> list = getServerLevel().getObjToSerialList(getId());
+        if(list==null){
+            return;
+        }
         for (SerialDTO serialDTO : list) {
             Color3f color3f = Color3f.RED;
             if (serialDTO.getLevelId() == getId()) {

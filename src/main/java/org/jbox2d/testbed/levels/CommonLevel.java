@@ -140,7 +140,6 @@ public abstract class CommonLevel extends PlayLevel {
                 SerialDTO heroBulletDTO = new SerialDTO(last_step, heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
                         heroBullet.getAngularVelocity(), heroBullet.getPosition(), 0);
                 bulletList.add(heroBullet);
-                objToSerialList.add(heroBulletDTO);
             }
         }
     }
@@ -371,7 +370,7 @@ public abstract class CommonLevel extends PlayLevel {
     }
 
     protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
-        getServerLevel().setObjToSerialList(objectsToSend);
+        getServerLevel().addObjToSerialList(objectsToSend,id);
     }
 
     @Override

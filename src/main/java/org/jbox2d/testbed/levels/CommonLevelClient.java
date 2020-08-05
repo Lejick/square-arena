@@ -32,7 +32,7 @@ public abstract class CommonLevelClient extends CommonLevel {
 
     @Override
     protected void createGameObject() {
-        List<SerialDTO> list = getServerLevel().getObjToSerialList();
+        List<SerialDTO> list = getServerLevel().getObjToSerialList(getId());
         for (SerialDTO serialDTO : list) {
             Color3f color3f = Color3f.RED;
             if (serialDTO.getLevelId() == getId()) {
@@ -54,7 +54,7 @@ public abstract class CommonLevelClient extends CommonLevel {
             getWorld().destroyBody(player.getBody());
         }
         playersList.clear();
-        List<SerialDTO> list = getServerLevel().getObjToSerialList();
+        List<SerialDTO> list = getServerLevel().getObjToSerialList(getId());
         for (SerialDTO serialDTO : list) {
             Color3f color3f = Color3f.RED;
             if (serialDTO.getLevelId() == getId()) {
@@ -73,11 +73,14 @@ public abstract class CommonLevelClient extends CommonLevel {
     protected void sendObjToServer() {
         List<SerialDTO> objectsToSend = new ArrayList<>();
         for (Player player : playersList) {
-            SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                    player.getBody().getPosition(), player.getLevelId());
-            objectsToSend.add(heroDTO);
+            if (player.isHero()) {
+                SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                        player.getBody().getPosition(), player.getLevelId());
+                objectsToSend.add(heroDTO);
+
+                sendToClients(objectsToSend, getId());
+            }
         }
-        sendToClients(objectsToSend, getId());
     }
 
 

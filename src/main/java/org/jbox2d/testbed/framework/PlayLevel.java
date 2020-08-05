@@ -23,9 +23,7 @@
  ******************************************************************************/
 package org.jbox2d.testbed.framework;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
@@ -90,7 +88,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
     private final Vec2 bombMousePoint = new Vec2();
     private final Vec2 bombSpawnPoint = new Vec2();
     private boolean bombSpawning = false;
-    protected List<SerialDTO> objToSerialList = new ArrayList<>();
+    protected Map<Integer,List<SerialDTO>> objToSerialMap = new Hashtable<>();
     protected boolean mouseTracing;
     private Vec2 mouseTracerPosition = new Vec2();
     private Vec2 mouseTracerVelocity = new Vec2();
@@ -146,7 +144,9 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
 
     public void init(GamingModelIF model, List<SerialDTO> serialDTOList) {
         this.model = model;
-        this.objToSerialList = serialDTOList;
+        if (serialDTOList!=null && serialDTOList.size() > 0) {
+            objToSerialMap.put(serialDTOList.get(0).getLevelId(), serialDTOList);
+        }
         Vec2 gravity = new Vec2(0, -10f);
         m_world = model.getWorldCreator().createWorld(gravity);
         m_world.setParticleGravityScale(0.4f);
@@ -593,14 +593,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
         bombSpawning = false;
     }
 
-    /************ SERIALIZATION *************/
-
-    /**
-     * Override to enable saving and loading. Remember to also override the {@link ObjectListener} and
-     * {@link ObjectSigner} methods if you need to
-     *
-     * @return
-     */
     public boolean isSaveLoadEnabled() {
         return false;
     }
@@ -663,12 +655,14 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
         }
     }
 
-    public List<SerialDTO> getObjToSerialList() {
-        return objToSerialList;
+    public List<SerialDTO> getObjToSerialList(Integer levelId) {
+        return objToSerialMap.get(levelId);
     }
 
-    public void setObjToSerialList(List<SerialDTO> objToSerialList) {
-        this.objToSerialList = objToSerialList;
+    public void addObjToSerialList(List<SerialDTO> objToSerialList,Integer levelId) {
+        if(objToSerialList.size()>0){
+            objToSerialMap.put(levelId, objToSerialList);
+        }
     }
 
     public boolean isServer() {

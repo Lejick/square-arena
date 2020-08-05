@@ -176,11 +176,7 @@ public abstract class AbstractTestbedController {
     }
 
     public List<SerialDTO> getSerialDTOList() {
-        return model.getCurrTest().getObjToSerialList();
-    }
-
-    public void setSerialDTOList(List<SerialDTO> serialDTOList) {
-        this.model.getCurrTest().setObjToSerialList(serialDTOList);
+        return model.getCurrTest().getObjToSerialList(model.getCurrTest().getId());
     }
 
     private void initTest(PlayLevel test) {
