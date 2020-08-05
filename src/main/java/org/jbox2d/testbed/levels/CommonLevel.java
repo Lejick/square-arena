@@ -5,7 +5,6 @@ import org.jbox2d.callbacks.RayCastCallback;
 import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
-import org.jbox2d.common.Color3f;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.Contact;
@@ -29,7 +28,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Line> linesList = new ArrayList<>();
 
     protected static final float commonPersonEdge = 1f;
-    long last_step = 0;
+    protected long last_step = 0;
     private static float bulletDeathVelocity = 75;
     protected List<Fixture> objectForJump = new ArrayList<>();
     protected Map<Integer, Integer> levelToHeroIdsMap = new HashMap<>();
@@ -41,7 +40,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
     protected Scene scene;
     protected List<MovingObject> movingObjectList = new ArrayList<>();
-    protected List<Player> playersList;
+    protected List<Player> playersList=new ArrayList<>();
     protected int nextId = 0;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
@@ -51,7 +50,7 @@ public abstract class CommonLevel extends PlayLevel {
         return true;
     }
 
-    public CommonLevel(AbstractTestbedController controller, Scene scene) {
+    protected CommonLevel(AbstractTestbedController controller, Scene scene) {
         this.controller = controller;
         this.scene = scene;
     }
@@ -61,13 +60,15 @@ public abstract class CommonLevel extends PlayLevel {
         ccallback = new RayCastClosestCallback();
         garbageObjectCollector = new GarbageObjectCollector();
         last_step = 0;
-        playersList = new ArrayList<>();
         createGameBox();
         createPlatforms();
+        createGameObject();
     }
 
 
     protected abstract void createPlatforms();
+
+    protected abstract void createGameObject();
 
     protected void createGameBox() {
         BodyDef bd = new BodyDef();
@@ -89,27 +90,6 @@ public abstract class CommonLevel extends PlayLevel {
         f.m_friction = 0;
     }
 
-
-    protected void applyObjects(){
-        for(Player player:playersList){
-           getWorld().destroyBody(player.getBody());
-        }
-        playersList.clear();
-        List<SerialDTO> list = getServerLevel().getObjToSerialList();
-        for (SerialDTO serialDTO : list) {
-            Color3f color3f = Color3f.RED;
-            if (serialDTO.getLevelId() == getId()) {
-                color3f = Color3f.BLUE;
-            }
-            Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-            Player player = new Player(playerBody, getWorld());
-            player.setLevelId(serialDTO.getLevelId());
-            if (serialDTO.getLevelId() == getId()) {
-                player.setHero(true);
-            }
-            playersList.add(player);
-        }
-    }
 
     protected void sendObjToClients() {
         List<SerialDTO> objectsToSend = new ArrayList<>();
@@ -240,7 +220,7 @@ public abstract class CommonLevel extends PlayLevel {
             bullet = fixtureB.m_body;
         }
 
-        for(Player player:playersList) {
+        for (Player player : playersList) {
             if (bodyToDestroy == player.getBody() && bullet == player.activeBullet) {
                 return;
             }
@@ -255,7 +235,6 @@ public abstract class CommonLevel extends PlayLevel {
                 }
             }
         }
-
 
         if (bodyToDestroy != null && bullet != null && destroyableList.contains(bodyToDestroy)) {
             Vec2 bulletVel = bullet.getLinearVelocity();
@@ -323,24 +302,22 @@ public abstract class CommonLevel extends PlayLevel {
 
     @Override
     public void step(SettingsIF settings) {
-        if(last_step%10==0) {
-            applyObjects();
-        }
         super.step(settings);
         explose();
         keyPressed();
         environmetsActions();
         collectgarbage();
+        descWeapon();
+        last_step++;
+
+    }
+
+    private void descWeapon(){
         for (Player player : playersList) {
             player.decrWeapon1CD();
         }
-        last_step++;
-        if (!isServer && last_step%10==0) {
-            sendObjToClients();
-        }
     }
-
-    private void explose() {
+    protected void explose() {
         for (Body body : objectToExplode) {
             Vec2 oldPosition = body.getPosition();
             m_world.destroyBody(body);
@@ -364,6 +341,7 @@ public abstract class CommonLevel extends PlayLevel {
         }
         objectToExplode.clear();
     }
+
     class RayCastClosestCallback implements RayCastCallback {
 
         boolean m_hit;

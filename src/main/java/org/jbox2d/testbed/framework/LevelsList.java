@@ -24,7 +24,8 @@
 package org.jbox2d.testbed.framework;
 
 import javafx.scene.Scene;
-import org.jbox2d.testbed.levels.*;
+import org.jbox2d.testbed.levels.arena01.Arena01;
+import org.jbox2d.testbed.levels.arena01.Arena01Server;
 
 /**
  * @author Daniel Murphy
@@ -32,6 +33,7 @@ import org.jbox2d.testbed.levels.*;
 public class LevelsList {
 
   public static void populateModel(PlayModel model, AbstractTestbedController controller, Scene scene) {
-    model.addTest(new Arena02(controller,scene));
+    model.addTest(new Arena01(controller,scene));
+    model.addTest(new Arena01Server(controller,scene));
   }
 }

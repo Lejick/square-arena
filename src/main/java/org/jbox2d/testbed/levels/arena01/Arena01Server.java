@@ -132,79 +132,29 @@
 /**
  * Created at 4:56:29 AM Jan 14, 2011
  */
-package org.jbox2d.testbed.levels;
+package org.jbox2d.testbed.levels.arena01;
 
 import javafx.scene.Scene;
-import org.jbox2d.common.Color3f;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
-import org.jbox2d.testbed.framework.PlayLevel;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.GeometryBodyFactory;
-import org.jbox2d.testbed.framework.game.objects.SerialDTO;
 import org.jbox2d.testbed.framework.utils.Line;
+import org.jbox2d.testbed.levels.CommonLevelClient;
+import org.jbox2d.testbed.levels.CommonLevelServer;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * @author Oleg Trohov
  */
-public class Arena02 extends CommonLevel {
+public class Arena01Server extends CommonLevelServer {
     private static float width = 80;
     private static float height = 60;
 
-    public Arena02(AbstractTestbedController controller, Scene scene) {
+    public Arena01Server(AbstractTestbedController controller, Scene scene) {
         super(controller, scene);
-    }
-
-    @Override
-    public void initTest() {
-        super.initTest();
-        createGameObjects();
-    }
-
-    protected void createGameObjects() {
-        List<SerialDTO> objectsToSend = new ArrayList<>();
-        int startY=-23;
-        if (isServer) {
-            for (PlayLevel playLevel : clientLevelList) {
-                int playerId = getNextId();
-                levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
-                Body playerBody = GeometryBodyFactory.createRectangle(-30, startY, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-               startY+=15;
-                Player player = new Player(playerBody, getWorld());
-                player.setId(playerId);
-                player.setLevelId(playLevel.getId());
-                playersList.add(player);
-                SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                        player.getBody().getPosition(), playLevel.getId());
-                objectsToSend.add(heroDTO);
-                sendToClients(objectsToSend, playLevel.getId());
-            }
-        } else {
-            List<SerialDTO> list = getServerLevel().getObjToSerialList();
-            for (SerialDTO serialDTO : list) {
-                Color3f color3f = Color3f.RED;
-                if (serialDTO.getLevelId() == getId()) {
-                    color3f = Color3f.BLUE;
-                }
-                Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-                Player player = new Player(playerBody, getWorld());
-                player.setLevelId(serialDTO.getLevelId());
-                if (serialDTO.getLevelId() == getId()) {
-
-                    player.setHero(true);
-                }
-                playersList.add(player);
-            }
-        }
     }
 
     protected void createPlatforms() {

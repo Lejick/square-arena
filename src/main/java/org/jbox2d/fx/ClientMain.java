@@ -66,8 +66,7 @@ public class ClientMain extends Application {
         clientStage2.show();
 
         Platform.runLater(() -> {
-            serverController.playTest(0);
-            serverController.getModel().getCurrTest().setServer(true);
+            serverController.playTest(1);
             serverController.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
             serverController.getModel().getCurrTest().setId(0);
             serverController.start();
