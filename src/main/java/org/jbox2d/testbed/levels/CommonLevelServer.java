@@ -27,10 +27,11 @@ import java.util.*;
  */
 public abstract class CommonLevelServer extends CommonLevel {
     public CommonLevelServer(AbstractTestbedController controller, Scene scene) {
-        super(controller,scene);
+        super(controller, scene);
     }
+
     @Override
-    protected  void createGameObject(){
+    protected void createGameObject() {
 
         int startY = -23;
         List<SerialDTO> objectsToSend = new ArrayList<>();
@@ -55,26 +56,20 @@ public abstract class CommonLevelServer extends CommonLevel {
         for (Player player : playersList) {
             getWorld().destroyBody(player.getBody());
         }
-          playersList.clear();
-          List<SerialDTO> list = new ArrayList<>();
-          for (List<SerialDTO> dtoList : objToSerialMapServer.values()) {
-              list.addAll(dtoList);
-          }
+        playersList.clear();
+        List<SerialDTO> list = new ArrayList<>();
+        for (List<SerialDTO> dtoList : objToSerialMapServer.values()) {
+            list.addAll(dtoList);
+        }
 
-          if (list == null) {
-              return;
-          }
-          for (SerialDTO serialDTO : list) {
-              Color3f color3f = Color3f.RED;
-              if (serialDTO.getLevelId() == getId()) {
-                color3f = Color3f.BLUE;
-            }
+        if (list == null) {
+            return;
+        }
+        for (SerialDTO serialDTO : list) {
+            Color3f color3f = Color3f.RED;
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-            Player player = new Player(playerBody, getWorld(),serialDTO.getId());
+            Player player = new Player(playerBody, getWorld(), serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
-            if (serialDTO.getLevelId() == getId()) {
-                player.setHero(true);
-            }
             playersList.add(player);
         }
     }
@@ -85,14 +80,14 @@ public abstract class CommonLevelServer extends CommonLevel {
         super.step(settings);
         for (PlayLevel playLevel : clientLevelList) {
             List<SerialDTO> objectsToSend = new ArrayList<>();
-            for(Player player:playersList) {
-                if(!player.isHero()) {
+            for (Player player : playersList) {
+                if (!player.isHero()) {
                     SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                             player.getBody().getPosition(), playLevel.getId());
                     objectsToSend.add(heroDTO);
                 }
-                sendToClients(objectsToSend, playLevel.getId());
             }
+            sendToClients(objectsToSend, playLevel.getId());
         }
     }
 

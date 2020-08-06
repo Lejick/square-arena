@@ -40,7 +40,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
     protected Scene scene;
     protected List<MovingObject> movingObjectList = new ArrayList<>();
-    protected List<Player> playersList=new ArrayList<>();
+    protected List<Player> playersList = new ArrayList<>();
     protected int nextId = 0;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
@@ -126,8 +126,6 @@ public abstract class CommonLevel extends PlayLevel {
             if (cursorInFireArea() && !player.getBody().isDestroy() && player.getWeapon1CD() == 0 && player.isHero()) {
                 Body heroBullet = player.fireWeapon1(getWorldMouse());
                 garbageObjectCollector.add(heroBullet, last_step + 400);
-                SerialDTO heroBulletDTO = new SerialDTO(last_step, heroBullet.getId(), heroBullet.getClass().getName(), heroBullet.getLinearVelocity(),
-                        heroBullet.getAngularVelocity(), heroBullet.getPosition(), 0);
                 bulletList.add(heroBullet);
             }
         }
@@ -300,11 +298,12 @@ public abstract class CommonLevel extends PlayLevel {
 
     }
 
-    private void descWeapon(){
+    private void descWeapon() {
         for (Player player : playersList) {
             player.decrWeapon1CD();
         }
     }
+
     protected void explose() {
         for (Body body : objectToExplode) {
             Vec2 oldPosition = body.getPosition();
@@ -359,7 +358,7 @@ public abstract class CommonLevel extends PlayLevel {
     }
 
     protected void sendToClients(List<SerialDTO> objectsToSend, int id) {
-        getServerLevel().addObjToSerialList(objectsToSend,id);
+        getServerLevel().addObjToSerialList(objectsToSend, id);
     }
 
     @Override

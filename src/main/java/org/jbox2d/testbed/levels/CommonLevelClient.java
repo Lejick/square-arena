@@ -39,7 +39,7 @@ public abstract class CommonLevelClient extends CommonLevel {
                 color3f = Color3f.BLUE;
             }
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-            Player player = new Player(playerBody, getWorld(),serialDTO.getId());
+            Player player = new Player(playerBody, getWorld(), serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
             if (serialDTO.getLevelId() == getId()) {
                 player.setHero(true);
@@ -51,21 +51,21 @@ public abstract class CommonLevelClient extends CommonLevel {
 
     protected void applyObjects() {
         List<SerialDTO> list = getServerLevel().getObjToSerialList(getId());
+        Set<Player> playerToDelete = new HashSet<>();
         for (Player p : playersList) {
-            for (SerialDTO dto : list) {
-                if (p.getId() == dto.getId()) {
-                    playersList.remove(p);
-                    getWorld().destroyBody(p.getBody());
-                }
+            if (!p.isHero()) {
+                playerToDelete.add(p);
+                getWorld().destroyBody(p.getBody());
             }
         }
+        playersList.removeAll(playerToDelete);
         for (SerialDTO serialDTO : list) {
             Color3f color3f = Color3f.RED;
             if (serialDTO.getLevelId() == getId()) {
                 color3f = Color3f.BLUE;
             }
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-            Player player = new Player(playerBody, getWorld(),serialDTO.getId());
+            Player player = new Player(playerBody, getWorld(), serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
             if (serialDTO.getLevelId() == getId()) {
                 player.setHero(true);

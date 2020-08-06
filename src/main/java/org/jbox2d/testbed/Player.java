@@ -33,6 +33,7 @@ public class Player {
     public Player(Body heroBody, World world, int id) {
         this.heroBody = heroBody;
         this.world = world;
+        this.id = id;
     }
 
     public void jump() {
