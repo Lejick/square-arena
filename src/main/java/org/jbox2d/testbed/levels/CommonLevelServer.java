@@ -31,9 +31,10 @@ public abstract class CommonLevelServer extends CommonLevel {
     }
     @Override
     protected  void createGameObject(){
-        List<SerialDTO> objectsToSend = new ArrayList<>();
+
         int startY = -23;
         for (PlayLevel playLevel : clientLevelList) {
+            List<SerialDTO> objectsToSend = new ArrayList<>();
             int playerId = getNextId();
             levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
             Body playerBody = GeometryBodyFactory.createRectangle(-30, startY, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
