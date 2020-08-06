@@ -42,7 +42,7 @@ public abstract class CommonLevelServer extends CommonLevel {
             startY += 15;
             Player player = new Player(playerBody, getWorld(), playerId);
             player.setLevelId(playLevel.getId());
-            playersList.add(player);
+            playersList.put(playerId,player);
             SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                     player.getBody().getPosition(), playLevel.getId());
             objectsToSend.add(heroDTO);
@@ -53,7 +53,7 @@ public abstract class CommonLevelServer extends CommonLevel {
     }
 
     protected void applyAndResolveConflicts() {
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
             getWorld().destroyBody(player.getBody());
         }
         playersList.clear();
@@ -70,7 +70,7 @@ public abstract class CommonLevelServer extends CommonLevel {
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
             Player player = new Player(playerBody, getWorld(), serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
-            playersList.add(player);
+            playersList.put(player.getId(),player);
         }
     }
 
@@ -80,8 +80,8 @@ public abstract class CommonLevelServer extends CommonLevel {
         super.step(settings);
         for (PlayLevel playLevel : clientLevelList) {
             List<SerialDTO> objectsToSend = new ArrayList<>();
-            for (Player player : playersList) {
-                if (!player.isHero()) {
+            for (Player player : playersList.values()) {
+                if (player.getLevelId()!=playLevel.getId()) {
                     SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                             player.getBody().getPosition(), playLevel.getId());
                     objectsToSend.add(heroDTO);

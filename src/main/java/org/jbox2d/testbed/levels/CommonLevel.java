@@ -40,7 +40,7 @@ public abstract class CommonLevel extends PlayLevel {
     protected List<Body> objectToExplode = Collections.synchronizedList(new ArrayList<>());
     protected Scene scene;
     protected List<MovingObject> movingObjectList = new ArrayList<>();
-    protected List<Player> playersList = new ArrayList<>();
+    protected Map<Integer, Player> playersList = new HashMap<>();
     protected int nextId = 0;
     RayCastClosestCallback ccallback;
     GarbageObjectCollector garbageObjectCollector = new GarbageObjectCollector();
@@ -90,46 +90,14 @@ public abstract class CommonLevel extends PlayLevel {
         f.m_friction = 0;
     }
 
-    public void keyPressed() {
-        for (Player player : playersList) {
-            if (player.isHero()) {
-                if (getModel().getKeys()['a'] || getModel().getKeys()[1092]) {
-                    player.left();
-                }
-                if (getModel().getKeys()['d'] || getModel().getKeys()[1074]) {
-                    player.right();
-                }
-                if (getModel().getKeys()[' ']) {
-                    player.jump();
-                }
-            }
-        }
-    }
+
 
     @Override
     protected Logger getLogger() {
         return log;
     }
 
-    protected void checkMovement() {
-        if (playersList.size() > 0) {
-            for (Player enemy : playersList) {
-                Vec2 currentVel = enemy.getBody().getLinearVelocity();
-                currentVel.x = enemy.maxSpeedX;
-                enemy.getBody().setLinearVelocity(currentVel);
-            }
-        }
-    }
 
-    protected void leftMouseAction() {
-        for (Player player : playersList) {
-            if (cursorInFireArea() && !player.getBody().isDestroy() && player.getWeapon1CD() == 0 && player.isHero()) {
-                Body heroBullet = player.fireWeapon1(getWorldMouse());
-                garbageObjectCollector.add(heroBullet, last_step + 400);
-                bulletList.add(heroBullet);
-            }
-        }
-    }
 
     protected abstract int getLevelIndex();
 
@@ -137,7 +105,7 @@ public abstract class CommonLevel extends PlayLevel {
         Body bodyToDestroy = null;
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
 
             if (objectForJump.contains(fixtureB)) {
                 player.contactObjForJump.add(fixtureB);
@@ -155,10 +123,10 @@ public abstract class CommonLevel extends PlayLevel {
             }
         }
         List<Fixture> enemyFixList = new ArrayList<>();
-        for (Player enemy : playersList) {
+        for (Player enemy : playersList.values()) {
             enemyFixList.add(enemy.getBody().getFixtureList());
         }
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
             Fixture fixtureToContact = null;
             if (fixtureA.getBody() == player.getBody()) {
                 fixtureToContact = fixtureB;
@@ -206,7 +174,7 @@ public abstract class CommonLevel extends PlayLevel {
             bullet = fixtureB.m_body;
         }
 
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
             if (bodyToDestroy == player.getBody() && bullet == player.activeBullet) {
                 return;
             }
@@ -214,7 +182,7 @@ public abstract class CommonLevel extends PlayLevel {
                 return;
             }
 
-            if (bullet != null && (bodyToDestroy == player.getBody() || playersList.contains(bodyToDestroy))) {
+            if (bullet != null && (bodyToDestroy == player.getBody() || playersList.values().contains(bodyToDestroy))) {
                 Vec2 bulletVel = bullet.getLinearVelocity();
                 if (bulletVel.length() > bulletDeathVelocity) {
                     objectToExplode.add(bodyToDestroy);
@@ -237,7 +205,7 @@ public abstract class CommonLevel extends PlayLevel {
     public void endContact(Contact contact) {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
             if (objectForJump.contains(fixtureB)) {
                 player.contactObjForJump.remove(fixtureB);
             }
@@ -290,7 +258,6 @@ public abstract class CommonLevel extends PlayLevel {
     public void step(SettingsIF settings) {
         super.step(settings);
         explose();
-        keyPressed();
         environmetsActions();
         collectgarbage();
         descWeapon();
@@ -299,7 +266,7 @@ public abstract class CommonLevel extends PlayLevel {
     }
 
     private void descWeapon() {
-        for (Player player : playersList) {
+        for (Player player : playersList.values()) {
             player.decrWeapon1CD();
         }
     }

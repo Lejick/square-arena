@@ -200,6 +200,11 @@ public class Arena01Server extends CommonLevelServer {
     }
 
     @Override
+    protected void leftMouseAction() {
+
+    }
+
+    @Override
     protected int getLevelIndex() {
         return 1;
     }

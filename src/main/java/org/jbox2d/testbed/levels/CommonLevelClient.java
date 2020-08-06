@@ -1,24 +1,12 @@
 package org.jbox2d.testbed.levels;
 
 import javafx.scene.Scene;
-import org.jbox2d.callbacks.RayCastCallback;
-import org.jbox2d.collision.shapes.EdgeShape;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Color3f;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
-import org.jbox2d.dynamics.contacts.Contact;
-import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
-import org.jbox2d.testbed.framework.PlayLevel;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.*;
-import org.jbox2d.testbed.framework.utils.GarbageObjectCollector;
-import org.jbox2d.testbed.framework.utils.Line;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -29,6 +17,9 @@ public abstract class CommonLevelClient extends CommonLevel {
     protected CommonLevelClient(AbstractTestbedController controller, Scene scene) {
         super(controller, scene);
     }
+
+    protected Player hero;
+    private Map<Integer, Player> enemyList = new HashMap<>();
 
     @Override
     protected void createGameObject() {
@@ -43,56 +34,64 @@ public abstract class CommonLevelClient extends CommonLevel {
             player.setLevelId(serialDTO.getLevelId());
             if (serialDTO.getLevelId() == getId()) {
                 player.setHero(true);
+                hero = player;
+            } else {
+                enemyList.put(player.getId(), player);
             }
-            playersList.add(player);
+            playersList.put(player.getId(), player);
         }
     }
 
 
     protected void applyObjects() {
         List<SerialDTO> list = getServerLevel().getObjToSerialList(getId());
-        Set<Player> playerToDelete = new HashSet<>();
-        for (Player p : playersList) {
-            if (!p.isHero()) {
-                playerToDelete.add(p);
-                getWorld().destroyBody(p.getBody());
-            }
+        for (Player enemy : enemyList.values()) {
+            getWorld().destroyBody(enemy.getBody());
         }
-        playersList.removeAll(playerToDelete);
         for (SerialDTO serialDTO : list) {
             Color3f color3f = Color3f.RED;
-            if (serialDTO.getLevelId() == getId()) {
-                color3f = Color3f.BLUE;
-            }
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
             Player player = new Player(playerBody, getWorld(), serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
-            if (serialDTO.getLevelId() == getId()) {
-                player.setHero(true);
-            }
-            playersList.add(player);
+            enemyList.put(player.getId(), player);
         }
     }
 
     protected void sendObjToServer() {
         List<SerialDTO> objectsToSend = new ArrayList<>();
-        for (Player player : playersList) {
-            if (player.isHero()) {
-                SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                        player.getBody().getPosition(), player.getLevelId());
-                objectsToSend.add(heroDTO);
-            }
-        }
+        SerialDTO heroDTO = new SerialDTO(last_step, hero.getId(), hero.getClass().getName(), hero.getBody().getLinearVelocity(), hero.getBody().getAngularVelocity(),
+                hero.getBody().getPosition(), hero.getLevelId());
+        objectsToSend.add(heroDTO);
         getServerLevel().addObjToSerialListServer(objectsToSend, id);
     }
 
 
     @Override
     public void step(SettingsIF settings) {
-      //  applyObjects();
+        applyObjects();
+        keyPressed();
         super.step(settings);
         sendObjToServer();
     }
 
+    protected void leftMouseAction() {
+        if (cursorInFireArea() && !hero.getBody().isDestroy() && hero.getWeapon1CD() == 0) {
+            Body heroBullet = hero.fireWeapon1(getWorldMouse());
+            garbageObjectCollector.add(heroBullet, last_step + 400);
+            bulletList.add(heroBullet);
+        }
+    }
+
+    public void keyPressed() {
+        if (getModel().getKeys()['a'] || getModel().getKeys()[1092]) {
+            hero.left();
+        }
+        if (getModel().getKeys()['d'] || getModel().getKeys()[1074]) {
+            hero.right();
+        }
+        if (getModel().getKeys()[' ']) {
+            hero.jump();
+        }
+    }
 
 }
