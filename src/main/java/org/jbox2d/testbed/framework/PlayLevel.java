@@ -89,6 +89,7 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
     private final Vec2 bombSpawnPoint = new Vec2();
     private boolean bombSpawning = false;
     protected Map<Integer,List<SerialDTO>> objToSerialMap = new Hashtable<>();
+    protected Map<Integer,List<SerialDTO>> objToSerialMapServer = new Hashtable<>();
     protected boolean mouseTracing;
     private Vec2 mouseTracerPosition = new Vec2();
     private Vec2 mouseTracerVelocity = new Vec2();
@@ -659,6 +660,12 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
     public void addObjToSerialList(List<SerialDTO> objToSerialList,Integer levelId) {
         if(objToSerialList.size()>0){
             objToSerialMap.put(levelId, objToSerialList);
+        }
+    }
+
+    public void addObjToSerialListServer(List<SerialDTO> objToSerialList,Integer levelId) {
+        if(objToSerialList.size()>0){
+            objToSerialMapServer.put(levelId, objToSerialList);
         }
     }
 

@@ -83,7 +83,7 @@ public abstract class CommonLevelClient extends CommonLevel {
                 objectsToSend.add(heroDTO);
             }
         }
-        sendToClients(objectsToSend, getId());
+        getServerLevel().addObjToSerialListServer(objectsToSend, id);
     }
 
 

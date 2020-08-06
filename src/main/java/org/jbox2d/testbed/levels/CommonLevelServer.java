@@ -33,28 +33,31 @@ public abstract class CommonLevelServer extends CommonLevel {
     protected  void createGameObject(){
 
         int startY = -23;
+        List<SerialDTO> objectsToSend = new ArrayList<>();
         for (PlayLevel playLevel : clientLevelList) {
-            List<SerialDTO> objectsToSend = new ArrayList<>();
             int playerId = getNextId();
             levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
             Body playerBody = GeometryBodyFactory.createRectangle(-30, startY, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
             startY += 15;
-            Player player = new Player(playerBody, getWorld(),playerId);
+            Player player = new Player(playerBody, getWorld(), playerId);
             player.setLevelId(playLevel.getId());
             playersList.add(player);
             SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
                     player.getBody().getPosition(), playLevel.getId());
             objectsToSend.add(heroDTO);
+        }
+        for (PlayLevel playLevel : clientLevelList) {
             sendToClients(objectsToSend, playLevel.getId());
         }
     }
-      protected void applyAndResolveConflicts() {
+
+    protected void applyAndResolveConflicts() {
         for (Player player : playersList) {
             getWorld().destroyBody(player.getBody());
         }
           playersList.clear();
           List<SerialDTO> list = new ArrayList<>();
-          for (List<SerialDTO> dtoList : objToSerialMap.values()) {
+          for (List<SerialDTO> dtoList : objToSerialMapServer.values()) {
               list.addAll(dtoList);
           }
 
@@ -88,8 +91,8 @@ public abstract class CommonLevelServer extends CommonLevel {
                             player.getBody().getPosition(), playLevel.getId());
                     objectsToSend.add(heroDTO);
                 }
+                sendToClients(objectsToSend, playLevel.getId());
             }
-            sendToClients(objectsToSend, playLevel.getId());
         }
     }
 
