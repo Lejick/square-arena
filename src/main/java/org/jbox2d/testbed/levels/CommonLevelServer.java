@@ -32,14 +32,13 @@ public abstract class CommonLevelServer extends CommonLevel {
     @Override
     protected  void createGameObject(){
         List<SerialDTO> objectsToSend = new ArrayList<>();
-        int startY=-23;
+        int startY = -23;
         for (PlayLevel playLevel : clientLevelList) {
             int playerId = getNextId();
             levelToHeroIdsMap.putIfAbsent(playLevel.getId(), playerId);
             Body playerBody = GeometryBodyFactory.createRectangle(-30, startY, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), Color3f.RED);
-            startY+=15;
-            Player player = new Player(playerBody, getWorld());
-            player.setId(playerId);
+            startY += 15;
+            Player player = new Player(playerBody, getWorld(),playerId);
             player.setLevelId(playLevel.getId());
             playersList.add(player);
             SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
@@ -67,7 +66,7 @@ public abstract class CommonLevelServer extends CommonLevel {
                 color3f = Color3f.BLUE;
             }
             Body playerBody = GeometryBodyFactory.createRectangle(serialDTO.getPosition().x, serialDTO.getPosition().y, commonPersonEdge, commonPersonEdge, BodyType.DYNAMIC, getWorld(), color3f);
-            Player player = new Player(playerBody, getWorld());
+            Player player = new Player(playerBody, getWorld(),serialDTO.getId());
             player.setLevelId(serialDTO.getLevelId());
             if (serialDTO.getLevelId() == getId()) {
                 player.setHero(true);
@@ -80,6 +79,17 @@ public abstract class CommonLevelServer extends CommonLevel {
     public void step(SettingsIF settings) {
         applyAndResolveConflicts();
         super.step(settings);
+        for (PlayLevel playLevel : clientLevelList) {
+            List<SerialDTO> objectsToSend = new ArrayList<>();
+            for(Player player:playersList) {
+                if(!player.isHero()) {
+                    SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
+                            player.getBody().getPosition(), playLevel.getId());
+                    objectsToSend.add(heroDTO);
+                }
+            }
+            sendToClients(objectsToSend, playLevel.getId());
+        }
     }
 
 }

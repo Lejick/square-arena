@@ -90,17 +90,6 @@ public abstract class CommonLevel extends PlayLevel {
         f.m_friction = 0;
     }
 
-
-    protected void sendObjToClients() {
-        List<SerialDTO> objectsToSend = new ArrayList<>();
-        for (Player player : playersList) {
-            SerialDTO heroDTO = new SerialDTO(last_step, player.getId(), player.getClass().getName(), player.getBody().getLinearVelocity(), player.getBody().getAngularVelocity(),
-                    player.getBody().getPosition(), player.getLevelId());
-            objectsToSend.add(heroDTO);
-        }
-        sendToClients(objectsToSend, getId());
-    }
-
     public void keyPressed() {
         for (Player player : playersList) {
             if (player.isHero()) {

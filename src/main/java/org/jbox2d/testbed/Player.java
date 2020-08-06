@@ -30,7 +30,7 @@ public class Player {
     private boolean isHero;
     public List<Fixture> contactObjForJump = new ArrayList<>();
 
-    public Player(Body heroBody, World world) {
+    public Player(Body heroBody, World world, int id) {
         this.heroBody = heroBody;
         this.world = world;
     }
@@ -140,10 +140,6 @@ public class Player {
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public boolean isHero() {

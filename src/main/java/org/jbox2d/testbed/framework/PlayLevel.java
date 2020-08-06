@@ -144,9 +144,6 @@ public abstract class PlayLevel implements ContactListener, ObjectListener,
 
     public void init(GamingModelIF model, List<SerialDTO> serialDTOList) {
         this.model = model;
-        if (serialDTOList!=null && serialDTOList.size() > 0) {
-            objToSerialMap.put(serialDTOList.get(0).getLevelId(), serialDTOList);
-        }
         Vec2 gravity = new Vec2(0, -10f);
         m_world = model.getWorldCreator().createWorld(gravity);
         m_world.setParticleGravityScale(0.4f);
