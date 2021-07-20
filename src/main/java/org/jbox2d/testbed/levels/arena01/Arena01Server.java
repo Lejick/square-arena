@@ -143,7 +143,6 @@ import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.GeometryBodyFactory;
 import org.jbox2d.testbed.framework.utils.Line;
-import org.jbox2d.testbed.levels.CommonLevelClient;
 import org.jbox2d.testbed.levels.CommonLevelServer;
 
 import java.util.List;

@@ -1,24 +1,13 @@
 package org.jbox2d.testbed.levels;
 
 import javafx.scene.Scene;
-import org.jbox2d.callbacks.RayCastCallback;
-import org.jbox2d.collision.shapes.EdgeShape;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Color3f;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
-import org.jbox2d.dynamics.contacts.Contact;
-import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.testbed.Player;
 import org.jbox2d.testbed.framework.AbstractTestbedController;
 import org.jbox2d.testbed.framework.PlayLevel;
 import org.jbox2d.testbed.framework.SettingsIF;
 import org.jbox2d.testbed.framework.game.objects.*;
-import org.jbox2d.testbed.framework.utils.GarbageObjectCollector;
-import org.jbox2d.testbed.framework.utils.Line;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 

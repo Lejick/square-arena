@@ -41,70 +41,81 @@ import java.util.List;
  * @author Daniel Murphy
  */
 public class ClientMain extends Application {
-    @Override
-    public void start(Stage primaryStage) {
-        final PlayControllerJavaFX serverController = new PlayControllerJavaFX(new PlayModel(),
-                UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
-            new Alert(Alert.AlertType.ERROR).showAndWait();
+  public static final String GAME_TITLE = "War of Shapes";
+
+  @Override
+  public void start(Stage primaryStage) {
+    final PlayControllerJavaFX serverController = createController();
+    Stage serverStage = createStage(GAME_TITLE, serverController);
+    final PlayControllerJavaFX clientController1 = createController();
+    Stage clientStage1 = createStage(GAME_TITLE, clientController1);
+
+    final PlayControllerJavaFX clientController2 = createController();
+    Stage clientStage2 = createStage(GAME_TITLE, clientController2);
+    serverStage.show();
+    clientStage1.show();
+    clientStage2.show();
+
+    Platform.runLater(
+        () -> {
+          serverController.playTest(1);
+          serverController
+              .getModel()
+              .getCurrTest()
+              .setServerLevel(serverController.getModel().getCurrTest());
+          serverController.getModel().getCurrTest().setId(0);
+          serverController.start();
+          clientController1.playTest(0);
+          clientController1
+              .getModel()
+              .getCurrTest()
+              .setServerLevel(serverController.getModel().getCurrTest());
+          clientController1.getModel().getCurrTest().setId(1);
+          clientController1.start();
+          clientController2.playTest(0);
+          clientController2
+              .getModel()
+              .getCurrTest()
+              .setServerLevel(serverController.getModel().getCurrTest());
+          clientController2.getModel().getCurrTest().setId(2);
+          clientController2.start();
+          List<PlayLevel> levelList = new ArrayList<>();
+          levelList.add(clientController1.getModel().getCurrTest());
+          levelList.add(clientController2.getModel().getCurrTest());
+          serverController.getModel().getCurrTest().setClientLevelList(levelList);
         });
-        Stage serverStage = createStage("War of Shapes", serverController);
-        serverStage.show();
+  }
 
-        final PlayControllerJavaFX clientController1 = new PlayControllerJavaFX(new PlayModel(),
-                UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
-            new Alert(Alert.AlertType.ERROR).showAndWait();
+  private Stage createStage(String title, AbstractTestbedController controller) {
+    PlayModel clientModel = (PlayModel) controller.getModel();
+    BorderPane clientTestbed = new BorderPane();
+
+    PlayPanelJavaFX clientPanel = new PlayPanelJavaFX(clientModel, controller, clientTestbed);
+    clientModel.setPanel(clientPanel);
+    clientModel.setDebugDraw(new DebugPlayDrawJavaFX(clientPanel, true));
+
+    Scene clientScene =
+        new Scene(clientTestbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
+    LevelsList.populateModel(clientModel, controller, clientScene);
+
+    clientTestbed.setCenter(clientPanel);
+
+    clientTestbed.setRight(new ScrollPane(new PlaySidePanel(clientModel, controller)));
+
+    Stage stage = new Stage();
+
+    stage.setScene(clientScene);
+    stage.setTitle(title);
+    return stage;
+  }
+
+  private PlayControllerJavaFX createController() {
+    return new PlayControllerJavaFX(
+        new PlayModel(),
+        UpdateBehavior.UPDATE_CALLED,
+        MouseBehavior.NORMAL,
+        (Exception e, String message) -> {
+          new Alert(Alert.AlertType.ERROR).showAndWait();
         });
-        Stage clientStage1 = createStage("War of Shapes", clientController1);
-        clientStage1.show();
-
-
-        final PlayControllerJavaFX clientController2 = new PlayControllerJavaFX(new PlayModel(),
-                UpdateBehavior.UPDATE_CALLED, MouseBehavior.NORMAL, (Exception e, String message) -> {
-            new Alert(Alert.AlertType.ERROR).showAndWait();
-        });
-        Stage clientStage2 = createStage("War of Shapes", clientController2);
-        clientStage2.show();
-
-        Platform.runLater(() -> {
-            serverController.playTest(1);
-            serverController.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
-            serverController.getModel().getCurrTest().setId(0);
-            serverController.start();
-            clientController1.playTest(0);
-            clientController1.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
-            clientController1.getModel().getCurrTest().setId(1);
-            clientController1.start();
-            clientController2.playTest(0);
-            clientController2.getModel().getCurrTest().setServerLevel(serverController.getModel().getCurrTest());
-            clientController2.getModel().getCurrTest().setId(2);
-            clientController2.start();
-            List<PlayLevel> levelList=new ArrayList<>();
-            levelList.add(clientController1.getModel().getCurrTest());
-            levelList.add(clientController2.getModel().getCurrTest());
-            serverController.getModel().getCurrTest().setClientLevelList(levelList);
-        });
-    }
-
-    private Stage createStage(String title, AbstractTestbedController controller) {
-        PlayModel clientModel = (PlayModel) controller.getModel();
-        BorderPane clientTestbed = new BorderPane();
-
-        PlayPanelJavaFX clientPanel = new PlayPanelJavaFX(clientModel, controller, clientTestbed);
-        clientModel.setPanel(clientPanel);
-        clientModel.setDebugDraw(new DebugPlayDrawJavaFX(clientPanel, true));
-
-        Scene clientScene = new Scene(clientTestbed, PlayPanelJavaFX.INIT_WIDTH, PlayPanelJavaFX.INIT_HEIGHT);
-        LevelsList.populateModel(clientModel, controller, clientScene);
-
-
-        clientTestbed.setCenter(clientPanel);
-
-        clientTestbed.setRight(new ScrollPane(new PlaySidePanel(clientModel, controller)));
-
-        Stage stage = new Stage();
-
-        stage.setScene(clientScene);
-        stage.setTitle(title);
-        return stage;
-    }
+  }
 }
